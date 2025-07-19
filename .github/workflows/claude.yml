@@ -44,10 +44,19 @@ jobs:
       - name: Run Claude PR Action
         uses: anthropics/claude-code-action@beta
         with:
-          # Or use OAuth token instead:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          timeout_minutes: "60"
+          timeout_minutes: "5"
+          mcp_config: |
+            {
+              "mcpServers": {
+                "astro-docs": {
+                  "type": "http",
+                  "url": "https://mcp.docs.astro.build/mcp"
+                }
+              }
+            }
           allowed_tools: |
+            mcp__astro-docs__search_astro_docs
             Bash(pnpm install)
             Bash(pnpm run:*)
             Bash(npm run:*)
