@@ -94,6 +94,16 @@ describe("detectAgenticEnvironment", () => {
     expect(result.type).toBe("agent");
   });
 
+  it("should detect SST OpenCode environment", () => {
+    const testEnv = { OPENCODE_BIN_PATH: "/usr/local/bin/opencode" };
+    const result = detectAgenticEnvironment(testEnv);
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("sst-opencode");
+    expect(result.name).toBe("SST OpenCode");
+    expect(result.type).toBe("interactive");
+  });
+
   it("should detect Aider environment", () => {
     const testEnv = { AIDER_API_KEY: "aider-key" };
     const result = detectAgenticEnvironment(testEnv);
