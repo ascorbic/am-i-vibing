@@ -36,6 +36,7 @@ console.log(`Detected: ${result.name} (${result.type})`);
 - **Warp**
 - **Windsurf**
 - **Zed**
+- **opencode**
 
 ## Example use case
 
