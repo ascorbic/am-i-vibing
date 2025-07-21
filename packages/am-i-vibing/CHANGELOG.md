@@ -1,5 +1,11 @@
 # am-i-vibing
 
+## 0.0.4
+
+### Patch Changes
+
+- [#19](https://github.com/ascorbic/am-i-vibing/pull/19) [`a4440e6`](https://github.com/ascorbic/am-i-vibing/commit/a4440e66aad4b356207a6ec19c007ab6013d27cb) Thanks [@ascorbic](https://github.com/ascorbic)! - feat: adds opencode detection
+
 ## 0.0.3
 
 ### Patch Changes
