@@ -7,7 +7,7 @@ export const providers: ProviderConfig[] = [
   {
     id: "sst-opencode",
     name: "SST OpenCode",
-    type: "interactive",
+    type: "agent",
     envVars: [
       {
         any: [
@@ -18,7 +18,6 @@ export const providers: ProviderConfig[] = [
         ],
       },
     ],
-    processChecks: ["opencode"],
   },
   {
     id: "jules",

@@ -101,7 +101,7 @@ describe("detectAgenticEnvironment", () => {
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("sst-opencode");
     expect(result.name).toBe("SST OpenCode");
-    expect(result.type).toBe("interactive");
+    expect(result.type).toBe("agent");
   });
 
   it("should detect Aider environment", () => {
