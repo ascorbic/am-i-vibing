@@ -24,6 +24,7 @@
   },
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
+    "am-i-vibing": "^0.0.4",
     "tsup": "^8.5.0"
   }
 }
