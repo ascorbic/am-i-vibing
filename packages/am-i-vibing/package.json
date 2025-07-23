@@ -46,6 +46,7 @@
   "author": "Matt Kane",
   "license": "MIT",
   "dependencies": {
+    "am-i-vibing": "^0.0.4",
     "process-ancestry": "^0.0.2"
   }
 }
