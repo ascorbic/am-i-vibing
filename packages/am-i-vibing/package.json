@@ -25,7 +25,7 @@
     "@arethetypeswrong/cli": "^0.18.2",
     "@types/node": "^22.16.5",
     "publint": "^0.3.12",
-    "tsdown": "^0.12.9",
+    "tsdown": "^0.13.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
