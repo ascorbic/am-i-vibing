@@ -1,5 +1,11 @@
 # am-i-vibing
 
+## 0.0.5
+
+### Patch Changes
+
+- [#24](https://github.com/ascorbic/am-i-vibing/pull/24) [`e8e7a42`](https://github.com/ascorbic/am-i-vibing/commit/e8e7a42f3cc1fd20e07cb0d704709d9abe4a2a96) Thanks [@ascorbic](https://github.com/ascorbic)! - Adds support for detecting Crush
+
 ## 0.0.4
 
 ### Patch Changes
