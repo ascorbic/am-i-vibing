@@ -26,9 +26,12 @@ function checkEnvVar(
 /**
  * Check if a process is running in the process tree
  */
-function checkProcess(processName: string): boolean {
+function checkProcess(
+  processName: string,
+  processAncestry?: Array<{ command?: string }>,
+): boolean {
   try {
-    const ancestry = getProcessAncestry();
+    const ancestry = processAncestry ?? getProcessAncestry();
     for (const ancestorProcess of ancestry) {
       if (ancestorProcess.command?.includes(processName)) {
         return true;
@@ -100,6 +103,7 @@ function createDetectedResult(provider: ProviderConfig): DetectionResult {
  */
 export function detectAgenticEnvironment(
   env: Record<string, string | undefined> = process.env,
+  processAncestry?: Array<{ command?: string }>,
 ): DetectionResult {
   for (const provider of providers) {
     // Check environment variables
@@ -108,7 +112,7 @@ export function detectAgenticEnvironment(
     }
 
     // Check processes
-    if (provider.processChecks?.some(checkProcess)) {
+    if (provider.processChecks?.some((processName) => checkProcess(processName, processAncestry))) {
       return createDetectedResult(provider);
     }
 
@@ -133,8 +137,9 @@ export function detectAgenticEnvironment(
 export function isProvider(
   providerName: string,
   env: Record<string, string | undefined> = process.env,
+  processAncestry?: Array<{ command?: string }>,
 ): boolean {
-  const result = detectAgenticEnvironment(env);
+  const result = detectAgenticEnvironment(env, processAncestry);
   return result.name === providerName;
 }
 
@@ -143,8 +148,9 @@ export function isProvider(
  */
 export function isAgent(
   env: Record<string, string | undefined> = process.env,
+  processAncestry?: Array<{ command?: string }>,
 ): boolean {
-  const result = detectAgenticEnvironment(env);
+  const result = detectAgenticEnvironment(env, processAncestry);
   return result.type === "agent" || result.type === "hybrid";
 }
 
@@ -153,8 +159,9 @@ export function isAgent(
  */
 export function isInteractive(
   env: Record<string, string | undefined> = process.env,
+  processAncestry?: Array<{ command?: string }>,
 ): boolean {
-  const result = detectAgenticEnvironment(env);
+  const result = detectAgenticEnvironment(env, processAncestry);
   return result.type === "interactive" || result.type === "hybrid";
 }
 
@@ -163,7 +170,8 @@ export function isInteractive(
  */
 export function isHybrid(
   env: Record<string, string | undefined> = process.env,
+  processAncestry?: Array<{ command?: string }>,
 ): boolean {
-  const result = detectAgenticEnvironment(env);
+  const result = detectAgenticEnvironment(env, processAncestry);
   return result.type === "hybrid";
 }

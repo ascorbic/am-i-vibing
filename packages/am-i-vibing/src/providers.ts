@@ -130,6 +130,12 @@ export const providers: ProviderConfig[] = [
     envVars: ["CODEIUM_EDITOR_APP_ROOT"],
   },
   {
+    id: "crush",
+    name: "Crush",
+    type: "agent",
+    processChecks: ["crush"],
+  },
+  {
     id: "vscode-copilot-agent",
     name: "GitHub Copilot in VS Code",
     type: "agent",
