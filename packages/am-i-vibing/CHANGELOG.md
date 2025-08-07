@@ -1,5 +1,11 @@
 # am-i-vibing
 
+## 0.1.0
+
+### Minor Changes
+
+- [#27](https://github.com/ascorbic/am-i-vibing/pull/27) [`c6fac23`](https://github.com/ascorbic/am-i-vibing/commit/c6fac2328bb2a4ccdf3ca55647b34fe0c747f434) Thanks [@ascorbic](https://github.com/ascorbic)! - Add support for Octofriend
+
 ## 0.0.5
 
 ### Patch Changes
