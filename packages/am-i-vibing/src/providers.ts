@@ -175,6 +175,12 @@ export const providers: ProviderConfig[] = [
       },
     ],
   },
+  {
+    id: "octofriend",
+    name: "Octofriend",
+    type: "agent",
+    processChecks: ["octofriend"],
+  },
 ];
 
 /**
