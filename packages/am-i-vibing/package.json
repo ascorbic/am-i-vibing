@@ -23,9 +23,9 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@types/node": "^22.18.1",
-    "publint": "^0.3.12",
-    "tsdown": "^0.15.0",
+    "@types/node": "^22.18.6",
+    "publint": "^0.3.13",
+    "tsdown": "^0.15.2",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
