@@ -16,14 +16,14 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.1",
     "@changesets/cli": "^2.29.7",
-    "@types/node": "^22.19.0",
+    "@types/node": "^22.19.1",
     "prettier": "^3.6.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.22.0",
   "dependencies": {
-    "tsup": "^8.5.0"
+    "tsup": "^8.5.1"
   }
 }
