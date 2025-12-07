@@ -25,7 +25,7 @@
     "@arethetypeswrong/cli": "^0.18.2",
     "@types/node": "^22.19.1",
     "publint": "^0.3.15",
-    "tsdown": "^0.16.6",
+    "tsdown": "^0.17.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
@@ -46,6 +46,6 @@
   "author": "Matt Kane",
   "license": "MIT",
   "dependencies": {
-    "process-ancestry": "^0.0.2"
+    "process-ancestry": "^0.1.0"
   }
 }
