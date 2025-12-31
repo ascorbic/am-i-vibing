@@ -20,7 +20,7 @@
     "prettier": "^3.7.4",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.16"
   },
   "packageManager": "pnpm@10.26.2",
   "dependencies": {
