@@ -1,5 +1,5 @@
 ---
-"am-i-vibing": minor
+"am-i-vibing": patch
 ---
 
-Add OpenCode detection via OPENCODE env var
+Fix OpenCode detection - use OPENCODE env var instead of removed vars
