@@ -5,12 +5,13 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
-    id: "sst-opencode",
-    name: "SST OpenCode",
+    id: "opencode",
+    name: "OpenCode",
     type: "agent",
     envVars: [
       {
         any: [
+          "OPENCODE",
           "OPENCODE_BIN_PATH",
           "OPENCODE_SERVER",
           "OPENCODE_APP_INFO",
@@ -23,7 +24,14 @@ export const providers: ProviderConfig[] = [
     id: "jules",
     name: "Jules",
     type: "agent",
-    envVars: [{ all: [["HOME", "/home/jules"], ["USER", "swebot"]] }],
+    envVars: [
+      {
+        all: [
+          ["HOME", "/home/jules"],
+          ["USER", "swebot"],
+        ],
+      },
+    ],
   },
   {
     id: "claude-code",
@@ -169,9 +177,7 @@ export const providers: ProviderConfig[] = [
     type: "hybrid",
     envVars: [
       {
-        all: [
-          ["TERM_PROGRAM", "WarpTerminal"],
-        ],
+        all: [["TERM_PROGRAM", "WarpTerminal"]],
       },
     ],
   },

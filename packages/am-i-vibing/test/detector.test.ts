@@ -94,13 +94,23 @@ describe("detectAgenticEnvironment", () => {
     expect(result.type).toBe("agent");
   });
 
-  it("should detect SST OpenCode environment", () => {
+  it("should detect OpenCode environment", () => {
+    const testEnv = { OPENCODE: "1" };
+    const result = detectAgenticEnvironment(testEnv);
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("opencode");
+    expect(result.name).toBe("OpenCode");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should detect OpenCode environment via legacy env vars", () => {
     const testEnv = { OPENCODE_BIN_PATH: "/usr/local/bin/opencode" };
     const result = detectAgenticEnvironment(testEnv);
 
     expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("sst-opencode");
-    expect(result.name).toBe("SST OpenCode");
+    expect(result.id).toBe("opencode");
+    expect(result.name).toBe("OpenCode");
     expect(result.type).toBe("agent");
   });
 
@@ -223,7 +233,10 @@ describe("detectAgenticEnvironment", () => {
     const testEnv = {};
     const mockProcessAncestry = [
       { command: "node /Users/matt/.nvm/versions/node/v22.16.0/bin/crush" },
-      { command: "/Users/matt/.nvm/versions/node/v22.16.0/lib/node_modules/@charmland/crush/bin/crush" },
+      {
+        command:
+          "/Users/matt/.nvm/versions/node/v22.16.0/lib/node_modules/@charmland/crush/bin/crush",
+      },
     ];
     const result = detectAgenticEnvironment(testEnv, mockProcessAncestry);
 
