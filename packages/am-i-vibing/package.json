@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "description": "Detect agentic coding environments and AI assistant tools",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.mjs",
   "bin": {
-    "am-i-vibing": "dist/cli.js"
+    "am-i-vibing": "dist/cli.mjs"
   },
   "files": [
     "dist"
   ],
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.mjs"
   },
   "scripts": {
     "build": "tsdown src/index.ts src/cli.ts --format esm --dts --clean",

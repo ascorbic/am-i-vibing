@@ -105,18 +105,35 @@ export function detectAgenticEnvironment(
   env: Record<string, string | undefined> = process.env,
   processAncestry?: Array<{ command?: string }>,
 ): DetectionResult {
+  // Fast path: check all environment variables first
   for (const provider of providers) {
-    // Check environment variables
     if (provider.envVars?.some((group) => checkEnvVars(group, env))) {
       return createDetectedResult(provider);
     }
+  }
 
-    // Check processes
-    if (provider.processChecks?.some((processName) => checkProcess(processName, processAncestry))) {
+  // Slow path: check processes only if no env var match found
+  // Lazy evaluation: compute process ancestry only once when needed
+  let cachedAncestry = processAncestry;
+  const getAncestry = () => {
+    if (cachedAncestry === undefined) {
+      try {
+        cachedAncestry = getProcessAncestry();
+      } catch {
+        cachedAncestry = []; // Fallback to empty on error
+      }
+    }
+    return cachedAncestry;
+  };
+
+  for (const provider of providers) {
+    if (provider.processChecks?.some((processName) => checkProcess(processName, getAncestry()))) {
       return createDetectedResult(provider);
     }
+  }
 
-    // Run custom detectors
+  // Custom detectors last
+  for (const provider of providers) {
     if (runCustomDetectors(provider)) {
       return createDetectedResult(provider);
     }
