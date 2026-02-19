@@ -283,3 +283,57 @@ describe("convenience functions", () => {
     expect(isHybrid(interactiveEnv, [])).toBe(false);
   });
 });
+
+describe("performance optimizations", () => {
+  it("should prioritize environment variables over process checks", () => {
+    // Mock an environment that matches via env vars
+    const envWithClaudeCode = { CLAUDECODE: "true" };
+    
+    // Mock process ancestry that would match other providers if checked
+    const mockProcessAncestry = [
+      { command: "gemini" },
+      { command: "aider" },
+      { command: "crush" }
+    ];
+    
+    // This should detect Claude Code via env vars without needing process checks
+    const result = detectAgenticEnvironment(envWithClaudeCode, mockProcessAncestry);
+    
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("claude-code");
+    expect(result.name).toBe("Claude Code");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should use process checks only when env vars fail", () => {
+    // Mock an environment with no matching env vars
+    const emptyEnv = {};
+    
+    // Mock process ancestry that matches a provider
+    const mockProcessAncestry = [
+      { command: "node /path/to/crush" }
+    ];
+    
+    const result = detectAgenticEnvironment(emptyEnv, mockProcessAncestry);
+    
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("crush");
+    expect(result.name).toBe("Crush");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should handle process ancestry caching properly", () => {
+    // Test that providing processAncestry parameter works correctly
+    const emptyEnv = {};
+    const mockProcessAncestry = [
+      { command: "octofriend-cli" }
+    ];
+    
+    const result = detectAgenticEnvironment(emptyEnv, mockProcessAncestry);
+    
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("octofriend");
+    expect(result.name).toBe("Octofriend");
+    expect(result.type).toBe("agent");
+  });
+});
