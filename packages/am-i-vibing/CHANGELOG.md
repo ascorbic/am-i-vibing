@@ -1,5 +1,11 @@
 # am-i-vibing
 
+## 0.1.1
+
+### Patch Changes
+
+- [#53](https://github.com/ascorbic/am-i-vibing/pull/53) [`99cf603`](https://github.com/ascorbic/am-i-vibing/commit/99cf603aa253a79e47bc3b9b2c18bd231077b2cb) Thanks [@ascorbic](https://github.com/ascorbic)! - Fix OpenCode detection - use OPENCODE env var instead of removed vars
+
 ## 0.1.0
 
 ### Minor Changes
