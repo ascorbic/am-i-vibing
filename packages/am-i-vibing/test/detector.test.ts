@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   detectAgenticEnvironment,
-  isProvider,
   isAgent,
   isInteractive,
   isHybrid,
@@ -9,8 +8,7 @@ import {
 
 describe("detectAgenticEnvironment", () => {
   it("should return false for non-agentic environment", () => {
-    const env = {};
-    const result = detectAgenticEnvironment(env, []);
+    const result = detectAgenticEnvironment({ env: {} });
     expect(result.isAgentic).toBe(false);
     expect(result.name).toBe(null);
   });
@@ -20,15 +18,14 @@ describe("detectAgenticEnvironment", () => {
       HOME: "/home/jules",
       USER: "swebot",
     };
-    const result = detectAgenticEnvironment(env, []);
+    const result = detectAgenticEnvironment({ env });
     expect(result.isAgentic).toBe(true);
     expect(result.name).toBe("Jules");
     expect(result.id).toBe("jules");
   });
 
   it("should detect Claude Code environment", () => {
-    const testEnv = { CLAUDECODE: "true" };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({ env: { CLAUDECODE: "true" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("claude-code");
@@ -37,8 +34,9 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Cursor environment", () => {
-    const testEnv = { CURSOR_TRACE_ID: "cursor-trace-123" };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({
+      env: { CURSOR_TRACE_ID: "cursor-trace-123" },
+    });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("cursor");
@@ -47,11 +45,12 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect GitHub Copilot Agent environment", () => {
-    const testEnv = {
-      TERM_PROGRAM: "vscode",
-      GIT_PAGER: "cat",
-    };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({
+      env: {
+        TERM_PROGRAM: "vscode",
+        GIT_PAGER: "cat",
+      },
+    });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("vscode-copilot-agent");
@@ -59,24 +58,13 @@ describe("detectAgenticEnvironment", () => {
     expect(result.type).toBe("agent");
   });
 
-  it("should detect GitHub Copilot (interactive) environment", () => {
-    const testEnv = {
-      CURSOR_TRACE_ID: "trace-123",
-    };
-    const result = detectAgenticEnvironment(testEnv, []);
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("cursor");
-    expect(result.name).toBe("Cursor");
-    expect(result.type).toBe("interactive");
-  });
-
   it("should detect Cursor Agent environment", () => {
-    const testEnv = {
-      CURSOR_TRACE_ID: "cursor-trace-123",
-      PAGER: "head -n 10000 | cat",
-    };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({
+      env: {
+        CURSOR_TRACE_ID: "cursor-trace-123",
+        PAGER: "head -n 10000 | cat",
+      },
+    });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("cursor-agent");
@@ -85,8 +73,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Replit AI environment", () => {
-    const testEnv = { REPL_ID: "repl-123" };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({ env: { REPL_ID: "repl-123" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("replit");
@@ -95,8 +82,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect OpenCode environment", () => {
-    const testEnv = { OPENCODE: "1" };
-    const result = detectAgenticEnvironment(testEnv);
+    const result = detectAgenticEnvironment({ env: { OPENCODE: "1" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("opencode");
@@ -105,8 +91,9 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect OpenCode environment via legacy env vars", () => {
-    const testEnv = { OPENCODE_BIN_PATH: "/usr/local/bin/opencode" };
-    const result = detectAgenticEnvironment(testEnv);
+    const result = detectAgenticEnvironment({
+      env: { OPENCODE_BIN_PATH: "/usr/local/bin/opencode" },
+    });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("opencode");
@@ -115,8 +102,9 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Aider environment", () => {
-    const testEnv = { AIDER_API_KEY: "aider-key" };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({
+      env: { AIDER_API_KEY: "aider-key" },
+    });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("aider");
@@ -125,11 +113,12 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Bolt.new Agent environment", () => {
-    const testEnv = {
-      SHELL: "/bin/jsh",
-      npm_config_yes: "true",
-    };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({
+      env: {
+        SHELL: "/bin/jsh",
+        npm_config_yes: "true",
+      },
+    });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("bolt-agent");
@@ -138,8 +127,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Bolt.new interactive environment", () => {
-    const testEnv = { SHELL: "/bin/jsh" };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({ env: { SHELL: "/bin/jsh" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("bolt");
@@ -148,11 +136,12 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Zed Agent environment", () => {
-    const testEnv = {
-      TERM_PROGRAM: "zed",
-      PAGER: "cat",
-    };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({
+      env: {
+        TERM_PROGRAM: "zed",
+        PAGER: "cat",
+      },
+    });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("zed-agent");
@@ -161,8 +150,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Zed interactive environment", () => {
-    const testEnv = { TERM_PROGRAM: "zed" };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({ env: { TERM_PROGRAM: "zed" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("zed");
@@ -171,8 +159,9 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Warp hybrid environment", () => {
-    const testEnv = { TERM_PROGRAM: "WarpTerminal" };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({
+      env: { TERM_PROGRAM: "WarpTerminal" },
+    });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("warp");
@@ -180,160 +169,216 @@ describe("detectAgenticEnvironment", () => {
     expect(result.type).toBe("hybrid");
   });
 
+  it("should detect Gemini CLI via GEMINI_CLI env var", () => {
+    const result = detectAgenticEnvironment({ env: { GEMINI_CLI: "1" } });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("gemini-agent");
+    expect(result.name).toBe("Gemini CLI");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should not detect Gemini CLI when GEMINI_CLI has the wrong value", () => {
+    // Gemini specifically sets GEMINI_CLI=1; any other value shouldn't match.
+    const result = detectAgenticEnvironment({
+      env: { GEMINI_CLI: "something-else" },
+    });
+    expect(result.isAgentic).toBe(false);
+  });
+
+  it("should detect Codex via CODEX_THREAD_ID env var", () => {
+    const result = detectAgenticEnvironment({
+      env: { CODEX_THREAD_ID: "thread-abc" },
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("codex");
+    expect(result.name).toBe("OpenAI Codex");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should detect Crush via CRUSH=1 env var", () => {
+    const result = detectAgenticEnvironment({ env: { CRUSH: "1" } });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("crush");
+    expect(result.name).toBe("Crush");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should detect Crush via AGENT=crush env var", () => {
+    const result = detectAgenticEnvironment({ env: { AGENT: "crush" } });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("crush");
+  });
+
   it("should handle false positive scenarios", () => {
-    const testEnv = { RANDOM_VARIABLE: "some-value" };
-    const result = detectAgenticEnvironment(testEnv, []);
+    const result = detectAgenticEnvironment({
+      env: { RANDOM_VARIABLE: "some-value" },
+    });
 
     expect(result.isAgentic).toBe(false);
   });
 
   it("should distinguish between agent and interactive variants", () => {
-    // Test that Cursor Agent is detected before regular Cursor
-    const agentEnv = {
-      CURSOR_TRACE_ID: "cursor-trace-123",
-      PAGER: "head -n 10000 | cat",
-    };
-    const result = detectAgenticEnvironment(agentEnv, []);
+    const agentResult = detectAgenticEnvironment({
+      env: {
+        CURSOR_TRACE_ID: "cursor-trace-123",
+        PAGER: "head -n 10000 | cat",
+      },
+    });
 
-    expect(result.id).toBe("cursor-agent");
-    expect(result.name).toBe("Cursor Agent");
-    expect(result.type).toBe("agent");
+    expect(agentResult.id).toBe("cursor-agent");
+    expect(agentResult.name).toBe("Cursor Agent");
+    expect(agentResult.type).toBe("agent");
 
-    // Test regular Cursor
-    const interactiveEnv = { CURSOR_TRACE_ID: "cursor-trace-123" };
-    const result2 = detectAgenticEnvironment(interactiveEnv, []);
+    const interactiveResult = detectAgenticEnvironment({
+      env: { CURSOR_TRACE_ID: "cursor-trace-123" },
+    });
 
-    expect(result2.id).toBe("cursor");
-    expect(result2.name).toBe("Cursor");
-    expect(result2.type).toBe("interactive");
+    expect(interactiveResult.id).toBe("cursor");
+    expect(interactiveResult.name).toBe("Cursor");
+    expect(interactiveResult.type).toBe("interactive");
   });
 
   it("should distinguish between Zed agent and interactive variants", () => {
-    // Test that Zed Agent is detected before regular Zed
-    const agentEnv = {
-      TERM_PROGRAM: "zed",
-      PAGER: "cat",
-    };
-    const result = detectAgenticEnvironment(agentEnv, []);
+    const agentResult = detectAgenticEnvironment({
+      env: {
+        TERM_PROGRAM: "zed",
+        PAGER: "cat",
+      },
+    });
 
-    expect(result.id).toBe("zed-agent");
-    expect(result.name).toBe("Zed Agent");
-    expect(result.type).toBe("agent");
+    expect(agentResult.id).toBe("zed-agent");
+    expect(agentResult.name).toBe("Zed Agent");
+    expect(agentResult.type).toBe("agent");
 
-    // Test regular Zed
-    const interactiveEnv = { TERM_PROGRAM: "zed" };
-    const result2 = detectAgenticEnvironment(interactiveEnv, []);
+    const interactiveResult = detectAgenticEnvironment({
+      env: { TERM_PROGRAM: "zed" },
+    });
 
-    expect(result2.id).toBe("zed");
-    expect(result2.name).toBe("Zed");
-    expect(result2.type).toBe("interactive");
+    expect(interactiveResult.id).toBe("zed");
+    expect(interactiveResult.name).toBe("Zed");
+    expect(interactiveResult.type).toBe("interactive");
+  });
+});
+
+describe("process ancestry detection (opt-in)", () => {
+  it("should NOT consult processChecks by default", () => {
+    // Octofriend is detectable only via processChecks. With checkProcesses
+    // disabled (the default), passing an ancestry that names octofriend should
+    // not yield a match.
+    const result = detectAgenticEnvironment({
+      env: {},
+      processAncestry: [{ command: "octofriend-cli" }],
+      checkProcesses: false,
+    });
+    expect(result.isAgentic).toBe(false);
   });
 
-  it("should detect Crush environment", () => {
-    const testEnv = {};
-    const mockProcessAncestry = [
-      { command: "node /Users/matt/.nvm/versions/node/v22.16.0/bin/crush" },
-      {
-        command:
-          "/Users/matt/.nvm/versions/node/v22.16.0/lib/node_modules/@charmland/crush/bin/crush",
-      },
-    ];
-    const result = detectAgenticEnvironment(testEnv, mockProcessAncestry);
+  it("should detect Octofriend when checkProcesses is enabled", () => {
+    const result = detectAgenticEnvironment({
+      env: {},
+      processAncestry: [{ command: "octofriend-cli" }],
+      checkProcesses: true,
+    });
 
     expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("crush");
-    expect(result.name).toBe("Crush");
+    expect(result.id).toBe("octofriend");
+    expect(result.name).toBe("Octofriend");
     expect(result.type).toBe("agent");
+  });
+
+  it("should default checkProcesses to true when processAncestry is supplied without an explicit flag", () => {
+    // Convenience: passing ancestry without saying checkProcesses=true is
+    // treated as opt-in, so callers don't have to set both.
+    const result = detectAgenticEnvironment({
+      env: {},
+      processAncestry: [{ command: "node /path/to/octofriend" }],
+    });
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("octofriend");
+  });
+
+  it("should still honor an explicit checkProcesses: false even when ancestry is supplied", () => {
+    const result = detectAgenticEnvironment({
+      env: {},
+      processAncestry: [{ command: "octofriend" }],
+      checkProcesses: false,
+    });
+    expect(result.isAgentic).toBe(false);
+  });
+
+  it("should prefer env var matches over process ancestry", () => {
+    // Env var match should win even if ancestry would also match a different
+    // provider.
+    const result = detectAgenticEnvironment({
+      env: { CLAUDECODE: "true" },
+      processAncestry: [{ command: "gemini" }, { command: "octofriend" }],
+      checkProcesses: true,
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("claude-code");
+  });
+
+  it("should fall back to process ancestry when env vars don't match", () => {
+    const result = detectAgenticEnvironment({
+      env: {},
+      processAncestry: [{ command: "/usr/local/bin/octofriend" }],
+      checkProcesses: true,
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("octofriend");
   });
 });
 
 describe("convenience functions", () => {
   it("isAgent should identify agent environments", () => {
-    const agentEnv = { CLAUDECODE: "true" };
-    expect(isAgent(agentEnv, [])).toBe(true);
-
-    const interactiveEnv = { CURSOR_TRACE_ID: "trace-123" };
-    expect(isAgent(interactiveEnv, [])).toBe(false); // This should be interactive, not agent
-
-    const cursorAgentEnv = {
-      CURSOR_TRACE_ID: "trace-123",
-      PAGER: "head -n 10000 | cat",
-    };
-    expect(isAgent(cursorAgentEnv, [])).toBe(true); // Now it's Cursor Agent
+    expect(isAgent({ env: { CLAUDECODE: "true" } })).toBe(true);
+    expect(isAgent({ env: { CURSOR_TRACE_ID: "trace-123" } })).toBe(false);
+    expect(
+      isAgent({
+        env: {
+          CURSOR_TRACE_ID: "trace-123",
+          PAGER: "head -n 10000 | cat",
+        },
+      }),
+    ).toBe(true);
   });
 
   it("isInteractive should identify interactive environments", () => {
-    const interactiveEnv = { CURSOR_TRACE_ID: "trace-123" };
-    expect(isInteractive(interactiveEnv, [])).toBe(true);
-
-    const copilotEnv = {
-      CURSOR_TRACE_ID: "trace-123",
-    };
-    expect(isInteractive(copilotEnv, [])).toBe(true);
+    expect(isInteractive({ env: { CURSOR_TRACE_ID: "trace-123" } })).toBe(true);
   });
 
   it("isHybrid should identify hybrid environments", () => {
-    const hybridEnv = { TERM_PROGRAM: "WarpTerminal" };
-    expect(isHybrid(hybridEnv, [])).toBe(true);
-
-    const agentEnv = { CLAUDECODE: "true" };
-    expect(isHybrid(agentEnv, [])).toBe(false);
-
-    const interactiveEnv = { CURSOR_TRACE_ID: "trace-123" };
-    expect(isHybrid(interactiveEnv, [])).toBe(false);
+    expect(isHybrid({ env: { TERM_PROGRAM: "WarpTerminal" } })).toBe(true);
+    expect(isHybrid({ env: { CLAUDECODE: "true" } })).toBe(false);
+    expect(isHybrid({ env: { CURSOR_TRACE_ID: "trace-123" } })).toBe(false);
   });
 });
 
-describe("performance optimizations", () => {
-  it("should prioritize environment variables over process checks", () => {
-    // Mock an environment that matches via env vars
-    const envWithClaudeCode = { CLAUDECODE: "true" };
-    
-    // Mock process ancestry that would match other providers if checked
-    const mockProcessAncestry = [
-      { command: "gemini" },
-      { command: "aider" },
-      { command: "crush" }
-    ];
-    
-    // This should detect Claude Code via env vars without needing process checks
-    const result = detectAgenticEnvironment(envWithClaudeCode, mockProcessAncestry);
-    
-    expect(result.isAgentic).toBe(true);
+describe("legacy positional API (deprecated)", () => {
+  // These call shapes are kept working for backwards compatibility with
+  // callers from before the options-object signature landed.
+  it("should accept (env) positional", () => {
+    const result = detectAgenticEnvironment({ CLAUDECODE: "true" } as any);
     expect(result.id).toBe("claude-code");
-    expect(result.name).toBe("Claude Code");
-    expect(result.type).toBe("agent");
   });
 
-  it("should use process checks only when env vars fail", () => {
-    // Mock an environment with no matching env vars
-    const emptyEnv = {};
-    
-    // Mock process ancestry that matches a provider
-    const mockProcessAncestry = [
-      { command: "node /path/to/crush" }
-    ];
-    
-    const result = detectAgenticEnvironment(emptyEnv, mockProcessAncestry);
-    
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("crush");
-    expect(result.name).toBe("Crush");
-    expect(result.type).toBe("agent");
-  });
-
-  it("should handle process ancestry caching properly", () => {
-    // Test that providing processAncestry parameter works correctly
-    const emptyEnv = {};
-    const mockProcessAncestry = [
-      { command: "octofriend-cli" }
-    ];
-    
-    const result = detectAgenticEnvironment(emptyEnv, mockProcessAncestry);
-    
-    expect(result.isAgentic).toBe(true);
+  it("should accept (env, processAncestry) positional and treat ancestry as opt-in", () => {
+    const result = detectAgenticEnvironment(
+      {} as any,
+      [{ command: "octofriend" }],
+    );
     expect(result.id).toBe("octofriend");
-    expect(result.name).toBe("Octofriend");
-    expect(result.type).toBe("agent");
+  });
+
+  it("should not consult processAncestry under the legacy (env) one-arg form", () => {
+    // No second arg means no opt-in; ancestry isn't consulted.
+    const result = detectAgenticEnvironment({} as any);
+    expect(result.isAgentic).toBe(false);
   });
 });

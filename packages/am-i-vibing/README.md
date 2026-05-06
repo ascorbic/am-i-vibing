@@ -27,16 +27,18 @@ console.log(`Detected: ${result.name} (${result.type})`);
 - **Aider**
 - **Bolt**
 - **Claude Code**
+- **Codex CLI**
+- **Crush**
 - **Cursor**
 - **Gemini CLI**
 - **GitHub Copilot Agent**
 - **Jules**
-- **Codex CLI**
+- **Octofriend** (process detection only — requires `checkProcesses`)
+- **opencode**
 - **Replit**
 - **Warp**
 - **Windsurf**
 - **Zed**
-- **opencode**
 
 ## Example use case
 
@@ -104,6 +106,36 @@ if (isHybrid()) {
 // Note: Hybrid environments return true for both isAgent() and isInteractive()
 ```
 
+### Process-tree detection (opt-in)
+
+Most providers expose an environment variable that uniquely identifies them, and
+that's the only signal `am-i-vibing` consults by default. A small number (e.g.
+Octofriend) can only be detected by inspecting the parent process chain. Reading
+the process tree spawns a subprocess and is meaningfully slow on Windows, so it
+is **off by default**.
+
+To opt in:
+
+```typescript
+import { detectAgenticEnvironment } from "am-i-vibing";
+
+const result = detectAgenticEnvironment({ checkProcesses: true });
+```
+
+You can also pre-supply an ancestry (e.g. if you are already collecting one):
+
+```typescript
+import { detectAgenticEnvironment } from "am-i-vibing";
+import { getProcessAncestry } from "process-ancestry";
+
+const result = detectAgenticEnvironment({
+  processAncestry: getProcessAncestry(),
+});
+```
+
+Supplying `processAncestry` implies `checkProcesses: true` unless you set it to
+`false` explicitly.
+
 ## Detection Result
 
 The library returns a `DetectionResult` object with the following structure:
@@ -151,7 +183,8 @@ npx am-i-vibing --debug
 - `-f, --format <json|text>` - Output format (default: text)
 - `-c, --check <agent|interactive|hybrid>` - Check for specific environment type
 - `-q, --quiet` - Only output result, no labels
-- `-d, --debug` - Debug output with environment and process info
+- `-p, --check-processes` - Also walk the process tree for detection (slower, off by default)
+- `-d, --debug` - Debug output with environment and process info (implies `--check-processes`)
 - `-h, --help` - Show help message
 
 ### Exit Codes

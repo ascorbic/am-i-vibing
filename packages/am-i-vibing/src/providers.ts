@@ -57,14 +57,20 @@ export const providers: ProviderConfig[] = [
   },
   {
     id: "gemini-agent",
-    name: "Gemini Agent",
+    name: "Gemini CLI",
     type: "agent",
+    // Gemini CLI sets GEMINI_CLI=1 on every shell command and MCP server it spawns.
+    // See: https://github.com/google-gemini/gemini-cli/blob/main/packages/core/src/services/shellExecutionService.ts
+    envVars: [["GEMINI_CLI", "1"]],
     processChecks: ["gemini"],
   },
   {
     id: "codex",
     name: "OpenAI Codex",
     type: "agent",
+    // Codex injects CODEX_THREAD_ID (the session conversation id) into every shell command it runs.
+    // See: https://github.com/openai/codex/blob/main/codex-rs/protocol/src/shell_environment.rs
+    envVars: ["CODEX_THREAD_ID"],
     processChecks: ["codex"],
   },
   {
@@ -156,6 +162,17 @@ export const providers: ProviderConfig[] = [
     id: "crush",
     name: "Crush",
     type: "agent",
+    // Crush sets CRUSH=1 (and AGENT=crush, AI_AGENT=crush) on every shell exec.
+    // See: https://github.com/charmbracelet/crush/blob/main/internal/shell/shell.go
+    envVars: [
+      {
+        any: [
+          ["CRUSH", "1"],
+          ["AGENT", "crush"],
+          ["AI_AGENT", "crush"],
+        ],
+      },
+    ],
     processChecks: ["crush"],
   },
   {
@@ -185,6 +202,8 @@ export const providers: ProviderConfig[] = [
     id: "octofriend",
     name: "Octofriend",
     type: "agent",
+    // Octofriend does not currently expose an environment variable signal, so it
+    // can only be detected via process ancestry (opt-in).
     processChecks: ["octofriend"],
   },
 ];
