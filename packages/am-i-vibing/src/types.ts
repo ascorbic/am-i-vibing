@@ -38,7 +38,7 @@ export interface ProviderConfig {
   /** Environment variables */
   envVars?: Array<EnvVarGroup | EnvVarDefinition>;
 
-  /** Process names to check for in the process tree */
+  /** Process names to check for in the process tree (only used when checkProcesses is enabled) */
   processChecks?: string[];
 
   /** Custom detection functions for complex logic */
@@ -60,4 +60,32 @@ export interface DetectionResult {
 
   /** Type of agentic environment, if detected */
   type: AgenticType | null;
+}
+
+/**
+ * Options for `detectAgenticEnvironment` and related helpers.
+ */
+export interface DetectOptions {
+  /**
+   * Environment variables to inspect. Defaults to `process.env`.
+   */
+  env?: Record<string, string | undefined>;
+
+  /**
+   * Pre-computed process ancestry (from `process-ancestry` or compatible). When
+   * provided, this is used in place of fetching ancestry at detection time.
+   * Implies `checkProcesses: true` unless explicitly set to `false`.
+   */
+  processAncestry?: Array<{ command?: string }>;
+
+  /**
+   * Whether to fall back to process-ancestry checks when no environment-variable
+   * match is found. Defaults to `false` because fetching the process tree is
+   * expensive on some platforms (notably Windows).
+   *
+   * Set to `true` to enable detection of providers that only expose a
+   * processChecks signal (e.g. Octofriend), at the cost of spawning a
+   * subprocess to read the process tree.
+   */
+  checkProcesses?: boolean;
 }

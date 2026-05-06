@@ -15,6 +15,7 @@ interface CliOptions {
   quiet?: boolean;
   help?: boolean;
   debug?: boolean;
+  checkProcesses?: boolean;
 }
 
 function parseCliArgs(): CliOptions {
@@ -45,6 +46,11 @@ function parseCliArgs(): CliOptions {
         short: "d",
         default: false,
       },
+      "check-processes": {
+        type: "boolean",
+        short: "p",
+        default: false,
+      },
     },
     allowPositionals: false,
   });
@@ -58,7 +64,10 @@ function parseCliArgs(): CliOptions {
   }
 
   // Validate check option
-  if (values.check && !["agent", "interactive", "hybrid"].includes(values.check)) {
+  if (
+    values.check &&
+    !["agent", "interactive", "hybrid"].includes(values.check)
+  ) {
     console.error(
       `Error: Invalid check type '${values.check}'. Must be 'agent', 'interactive', or 'hybrid'.`,
     );
@@ -71,6 +80,7 @@ function parseCliArgs(): CliOptions {
     quiet: values.quiet,
     help: values.help,
     debug: values.debug,
+    checkProcesses: values["check-processes"],
   };
 }
 
@@ -85,6 +95,8 @@ OPTIONS:
   -f, --format <json|text>     Output format (default: text)
   -c, --check <agent|interactive|hybrid>  Check for specific environment type
   -q, --quiet                  Only output result, no labels
+  -p, --check-processes        Also walk the process tree for detection
+                               (slower, off by default)
   -d, --debug                  Debug output with environment and process info
   -h, --help                   Show this help message
 
@@ -94,6 +106,7 @@ EXAMPLES:
   npx am-i-vibing --check agent      # Check if running under agent
   npx am-i-vibing --check hybrid     # Check if running under hybrid
   npx am-i-vibing --quiet            # Minimal output
+  npx am-i-vibing --check-processes  # Include process-tree detection
   npx am-i-vibing --debug            # Debug with full environment info
 
 EXIT CODES:
@@ -102,14 +115,17 @@ EXIT CODES:
 `);
 }
 
-function checkEnvironmentType(checkType: string): boolean {
+function checkEnvironmentType(
+  checkType: string,
+  options: { checkProcesses?: boolean },
+): boolean {
   switch (checkType) {
     case "agent":
-      return isAgent();
+      return isAgent({ checkProcesses: options.checkProcesses });
     case "interactive":
-      return isInteractive();
+      return isInteractive({ checkProcesses: options.checkProcesses });
     case "hybrid":
-      return isHybrid();
+      return isHybrid({ checkProcesses: options.checkProcesses });
     default:
       return false;
   }
@@ -141,13 +157,13 @@ function formatOutput(
 
   if (options.quiet) {
     if (options.check) {
-      return checkEnvironmentType(options.check) ? "true" : "false";
+      return checkEnvironmentType(options.check, options) ? "true" : "false";
     }
     return result.isAgentic ? `${result.name}` : "none";
   }
 
   if (options.check) {
-    const matches = checkEnvironmentType(options.check);
+    const matches = checkEnvironmentType(options.check, options);
     return matches
       ? `✓ Running in ${options.check} environment: ${result.name}`
       : `✗ Not running in ${options.check} environment`;
@@ -168,11 +184,13 @@ function main(): void {
     process.exit(0);
   }
 
-  const result = detectAgenticEnvironment();
+  // --debug always reveals the full picture, including process detection
+  const checkProcesses = options.checkProcesses || options.debug;
+  const result = detectAgenticEnvironment({ checkProcesses });
   let exitCode = 1;
 
   if (options.check) {
-    exitCode = checkEnvironmentType(options.check) ? 0 : 1;
+    exitCode = checkEnvironmentType(options.check, { checkProcesses }) ? 0 : 1;
   } else {
     exitCode = result.isAgentic ? 0 : 1;
   }
