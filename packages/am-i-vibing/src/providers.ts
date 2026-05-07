@@ -176,6 +176,36 @@ export const providers: ProviderConfig[] = [
     processChecks: ["crush"],
   },
   {
+    id: "amp",
+    name: "Amp",
+    type: "agent",
+    // Sourcegraph Amp injects AGENT=amp, AGENT_THREAD_ID, and AMP_CURRENT_THREAD_ID
+    // into every shell tool execution.
+    // See: https://www.npmjs.com/package/@sourcegraph/amp
+    envVars: [
+      {
+        any: ["AMP_CURRENT_THREAD_ID", ["AGENT", "amp"]],
+      },
+    ],
+  },
+  {
+    id: "auggie",
+    name: "Auggie",
+    type: "agent",
+    // Augment Code's Auggie CLI sets AUGMENT_AGENT=1 in the shell tool's env on
+    // every command execution.
+    // See: https://www.npmjs.com/package/@augmentcode/auggie
+    envVars: [["AUGMENT_AGENT", "1"]],
+  },
+  {
+    id: "qwen-code",
+    name: "Qwen Code",
+    type: "agent",
+    // Qwen Code (Alibaba's gemini-cli fork) sets QWEN_CODE=1 on every shell exec.
+    // See: https://www.npmjs.com/package/@qwen-code/qwen-code
+    envVars: [["QWEN_CODE", "1"]],
+  },
+  {
     id: "vscode-copilot-agent",
     name: "GitHub Copilot in VS Code",
     type: "agent",
@@ -205,6 +235,26 @@ export const providers: ProviderConfig[] = [
     // Octofriend does not currently expose an environment variable signal, so it
     // can only be detected via process ancestry (opt-in).
     processChecks: ["octofriend"],
+  },
+  {
+    id: "devin",
+    name: "Devin",
+    type: "agent",
+    // Devin for Terminal does not inject any DEVIN_* env var into shell tool
+    // executions (DEVIN_PROJECT_DIR is only set inside hook commands, and
+    // DEVIN_SESSION_ID/DEVIN_WRAPPER_ACTIVE only exist in the opt-in `devin shell`
+    // integration where the user runs commands themselves). Process ancestry is
+    // the only available signal, so detection is opt-in via processAncestry.
+    processChecks: ["devin"],
+  },
+  {
+    id: "droid",
+    name: "Factory Droid",
+    type: "agent",
+    // Factory's Droid CLI sets DROID_PROJECT_DIR / FACTORY_PROJECT_DIR only inside
+    // hook command invocations, not on regular shell tool exec. Process ancestry
+    // is the only reliable signal, so detection is opt-in via processAncestry.
+    processChecks: ["droid"],
   },
 ];
 

@@ -213,6 +213,54 @@ describe("detectAgenticEnvironment", () => {
     expect(result.id).toBe("crush");
   });
 
+  it("should detect Amp via AMP_CURRENT_THREAD_ID env var", () => {
+    const result = detectAgenticEnvironment({
+      env: { AMP_CURRENT_THREAD_ID: "T-abc123" },
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("amp");
+    expect(result.name).toBe("Amp");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should detect Amp via AGENT=amp env var", () => {
+    const result = detectAgenticEnvironment({ env: { AGENT: "amp" } });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("amp");
+  });
+
+  it("should detect Auggie via AUGMENT_AGENT=1 env var", () => {
+    const result = detectAgenticEnvironment({
+      env: { AUGMENT_AGENT: "1" },
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("auggie");
+    expect(result.name).toBe("Auggie");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should not detect Auggie when AUGMENT_AGENT has the wrong value", () => {
+    const result = detectAgenticEnvironment({
+      env: { AUGMENT_AGENT: "0" },
+    });
+
+    expect(result.isAgentic).toBe(false);
+  });
+
+  it("should detect Qwen Code via QWEN_CODE=1 env var", () => {
+    const result = detectAgenticEnvironment({
+      env: { QWEN_CODE: "1" },
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("qwen-code");
+    expect(result.name).toBe("Qwen Code");
+    expect(result.type).toBe("agent");
+  });
+
   it("should handle false positive scenarios", () => {
     const result = detectAgenticEnvironment({
       env: { RANDOM_VARIABLE: "some-value" },
@@ -287,6 +335,32 @@ describe("process ancestry detection (opt-in)", () => {
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("octofriend");
     expect(result.name).toBe("Octofriend");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should detect Devin via process ancestry when checkProcesses is enabled", () => {
+    const result = detectAgenticEnvironment({
+      env: {},
+      processAncestry: [{ command: "/Users/me/.local/bin/devin" }],
+      checkProcesses: true,
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("devin");
+    expect(result.name).toBe("Devin");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should detect Factory Droid via process ancestry when checkProcesses is enabled", () => {
+    const result = detectAgenticEnvironment({
+      env: {},
+      processAncestry: [{ command: "/usr/local/bin/droid" }],
+      checkProcesses: true,
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("droid");
+    expect(result.name).toBe("Factory Droid");
     expect(result.type).toBe("agent");
   });
 
