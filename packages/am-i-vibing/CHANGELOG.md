@@ -1,5 +1,22 @@
 # am-i-vibing
 
+## 0.3.0
+
+### Minor Changes
+
+- [#73](https://github.com/ascorbic/am-i-vibing/pull/73) [`fa38a90`](https://github.com/ascorbic/am-i-vibing/commit/fa38a906bd2928e415c10c2b3453b5f4e0001fbb) Thanks [@ascorbic](https://github.com/ascorbic)! - Add detection for five more agentic coding tools.
+
+  Env-var detection (works by default):
+  - **Sourcegraph Amp** (`AMP_CURRENT_THREAD_ID`, or `AGENT=amp`)
+  - **Auggie** from Augment Code (`AUGMENT_AGENT=1`)
+  - **Qwen Code** (`QWEN_CODE=1`)
+
+  Process-ancestry detection (opt-in via `checkProcesses: true`):
+  - **Devin** for Terminal (Cognition) -- `devin` binary in process tree
+  - **Factory Droid** -- `droid` binary in process tree
+
+  Devin and Droid only inject identifying env vars inside hook commands, not on regular shell tool exec, so process ancestry is the only available signal.
+
 ## 0.2.0
 
 ### Minor Changes
