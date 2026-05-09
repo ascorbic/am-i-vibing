@@ -70,11 +70,14 @@ pnpm run prepublishOnly
 
 ### Library Architecture (am-i-vibing)
 
-- **Core Detection**: `src/detector.ts` - Main detection logic with simplified implementation
-- **Provider Definitions**: `src/providers.ts` - Configuration for each AI tool
+- **Core Detection**: `src/detector.ts` - Composes agent and environment passes into a single result
+- **Provider Definitions**: `src/providers.ts` - Configuration for each AI agent
+- **Environment Definitions**: `src/environments.ts` - Configuration for cloud sandboxes, CI runners, IDEs, WebContainers
 - **Type System**: `src/types.ts` - TypeScript interfaces and types
 - **CLI Interface**: `src/cli.ts` - Command-line interface for npx execution
 - **Public API**: `src/index.ts` - Exports for library consumers
+
+The detector runs two independent passes — one over `providers` (which AI is driving the process) and one over `environments` (where the process is running). The composed `DetectionResult` exposes both halves; either can be `null` independently.
 
 ### Detection Methods
 
@@ -82,14 +85,16 @@ pnpm run prepublishOnly
 2. **Process Tree Analysis**: Using process-ancestry to check running processes
 3. **Custom Detectors**: Functions for complex filesystem or configuration checks
 4. **Logical Operators**: ANY/ALL/NONE conditions for sophisticated detection rules
+5. **Declarative Extractors**: `versionEnvVar`, `sessionIdEnvVar`, `containerIdEnvVar`, `runIdEnvVar` accept `string | string[]`; the first non-empty value wins
 
 ### Key Features
 
 - **Provider Detection**: Supports 10+ major AI coding tools
+- **Environment Detection**: Cloud sandboxes (Claude Code Cloud, Replit, Jules), CI runners (GitHub Actions, GitLab CI, CircleCI, Buildkite), IDEs (VS Code, Cursor, Zed), WebContainer
 - **Detection Categories**: Direct agents, embedded IDE features, hybrid tools
 - **CLI Tool**: Available via `npx am-i-vibing` with multiple output formats
 - **Tuple Detection**: Validates both environment variable names AND expected values
-- **Simple API**: Clean detection results with `id`, `name`, `type`, and `isAgentic`
+- **Nested API**: `agent` and `environment` returned as separate, optional objects with version, sessionId, containerId, and runId where available
 
 ## Supported AI Tools
 
@@ -122,17 +127,24 @@ pnpm run prepublishOnly
 ```bash
 # Basic detection
 npx am-i-vibing
-# ✓ Detected: [claude-code] Claude Code (agent)
+# ✓ Agent: [claude-code] Claude Code (agent) v2.1.42
+#     sessionId: cse_01abc
+#   Environment: [claude-code-cloud] Claude Code Cloud (cloud-sandbox)
+#     containerId: container_xyz
 
-# JSON output
+# JSON output (nested shape)
 npx am-i-vibing --format json
-# {"isAgentic": true, "id": "claude-code", "name": "Claude Code", "type": "agent"}
+# { "isAgentic": true,
+#   "agent": { "id": "claude-code", "name": "Claude Code", "type": "agent",
+#              "version": "2.1.42", "sessionId": "cse_01abc" },
+#   "environment": { "id": "claude-code-cloud", "kind": "cloud-sandbox",
+#                    "containerId": "container_xyz" } }
 
-# Check specific environment type
+# Check specific environment type (still operates on agent type)
 npx am-i-vibing --check agent
 # ✓ Running in agent environment: Claude Code
 
-# Quiet mode (useful for scripts)
+# Quiet mode (useful for scripts) — outputs the agent name or "none"
 npx am-i-vibing --quiet
 # Claude Code
 
@@ -147,23 +159,36 @@ npx am-i-vibing --help
 ### Library Usage
 
 ```typescript
-import { detectAgenticEnvironment, isAgent, isInteractive } from "am-i-vibing";
+import {
+  detectAgenticEnvironment,
+  detectAgent,
+  detectEnvironment,
+  isAgent,
+  isInteractive,
+} from "am-i-vibing";
 
-// Full detection
-const result = detectAgenticEnvironment();
-if (result.isAgentic) {
-  console.log(`Detected: ${result.name} (${result.type})`);
-  console.log(`ID: ${result.id}`);
+// Full detection — returns both halves
+const { agent, environment } = detectAgenticEnvironment();
+
+if (agent) {
+  console.log(`Agent: ${agent.name} (${agent.type})`);
+  if (agent.version) console.log(`Version: ${agent.version}`);
+  if (agent.sessionId) console.log(`Session: ${agent.sessionId}`);
 }
 
-// Quick type checks
-if (isAgent()) {
-  console.log("Running under direct AI agent control");
+if (environment) {
+  console.log(`Environment: ${environment.name} (${environment.kind})`);
+  if (environment.containerId) console.log(`Container: ${environment.containerId}`);
+  if (environment.runId) console.log(`Run: ${environment.runId}`);
 }
 
-if (isInteractive()) {
-  console.log("Running in interactive AI environment");
-}
+// Detect just one half
+const agentOnly = detectAgent();
+const envOnly = detectEnvironment();
+
+// Quick type checks (operate on agent only)
+if (isAgent()) console.log("Running under direct AI agent control");
+if (isInteractive()) console.log("Running in interactive AI environment");
 ```
 
 ## Development Guidelines
@@ -175,6 +200,11 @@ if (isInteractive()) {
 3. Prefer environment variables over custom detectors
 4. Use tuples for value-specific detection
 5. Only use custom detectors for filesystem/process checks
+6. Annotate `versionEnvVar` and `sessionIdEnvVar` when the agent exposes them — pass an array if there's a fallback chain
+
+### Adding New Environments
+
+Environments live in `src/environments.ts` and follow the same matcher shape as providers (`envVars`, `processChecks`, `customDetectors`), plus declarative extractors `containerIdEnvVar` and `runIdEnvVar`. An environment matches a runtime sandbox/CI/IDE rather than an AI agent — these are detected independently and both can fire for the same process.
 
 ### Testing Strategy
 
@@ -242,14 +272,15 @@ Three GitHub Actions workflows:
 ```
 packages/am-i-vibing/
 ├── src/
-│   ├── types.ts      # TypeScript interfaces
-│   ├── providers.ts  # Provider configurations
-│   ├── detector.ts   # Core detection logic
-│   ├── index.ts      # Public API exports
-│   └── cli.ts        # CLI interface
-├── test/             # Test suite
-├── dist/             # Built output (gitignored)
-└── package.json      # Package configuration
+│   ├── types.ts          # TypeScript interfaces
+│   ├── providers.ts      # AI agent configurations
+│   ├── environments.ts   # Runtime environment configurations
+│   ├── detector.ts       # Core detection logic (composes both passes)
+│   ├── index.ts          # Public API exports
+│   └── cli.ts            # CLI interface
+├── test/                 # Test suite
+├── dist/                 # Built output (gitignored)
+└── package.json          # Package configuration
 ```
 
 ## Project Memories

@@ -38,6 +38,8 @@ export const providers: ProviderConfig[] = [
     name: "Claude Code",
     type: "agent",
     envVars: ["CLAUDECODE"],
+    versionEnvVar: "CLAUDE_CODE_VERSION",
+    sessionIdEnvVar: ["CLAUDE_CODE_SESSION_ID", "CLAUDE_CODE_REMOTE_SESSION_ID"],
   },
   {
     id: "cursor-agent",
@@ -48,12 +50,14 @@ export const providers: ProviderConfig[] = [
         all: ["CURSOR_TRACE_ID", ["PAGER", "head -n 10000 | cat"]],
       },
     ],
+    sessionIdEnvVar: "CURSOR_TRACE_ID",
   },
   {
     id: "cursor",
     name: "Cursor",
     type: "interactive",
     envVars: ["CURSOR_TRACE_ID"],
+    sessionIdEnvVar: "CURSOR_TRACE_ID",
   },
   {
     id: "gemini-agent",
@@ -72,6 +76,7 @@ export const providers: ProviderConfig[] = [
     // See: https://github.com/openai/codex/blob/main/codex-rs/protocol/src/shell_environment.rs
     envVars: ["CODEX_THREAD_ID"],
     processChecks: ["codex"],
+    sessionIdEnvVar: "CODEX_THREAD_ID",
   },
   {
     id: "replit",
