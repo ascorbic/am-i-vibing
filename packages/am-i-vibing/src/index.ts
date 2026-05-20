@@ -5,23 +5,35 @@
 // Export types
 export type {
   AgenticType,
-  ProviderConfig,
+  AgentInfo,
   DetectionResult,
   DetectOptions,
+  EnvironmentConfig,
+  EnvironmentInfo,
+  EnvironmentKind,
   EnvVarDefinition,
+  EnvVarExtractor,
   EnvVarGroup,
+  ProviderConfig,
 } from "./types.js";
 
-// Export providers
+// Export providers and environments
 export { providers, getProvider, getProvidersByType } from "./providers.js";
+export {
+  environments,
+  getEnvironment,
+  getEnvironmentsByKind,
+} from "./environments.js";
 
 // Export detection functions
 export {
+  detectAgent,
   detectAgenticEnvironment,
-  isProvider,
+  detectEnvironment,
   isAgent,
-  isInteractive,
   isHybrid,
+  isInteractive,
+  isProvider,
 } from "./detector.js";
 
 // Import for default export

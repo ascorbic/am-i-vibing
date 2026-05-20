@@ -8,6 +8,7 @@ import {
   isInteractive,
   isHybrid,
 } from "./detector.js";
+import type { AgentInfo, DetectionResult, EnvironmentInfo } from "./types.js";
 
 interface CliOptions {
   format?: "json" | "text";
@@ -55,7 +56,6 @@ function parseCliArgs(): CliOptions {
     allowPositionals: false,
   });
 
-  // Validate format option
   if (values.format && !["json", "text"].includes(values.format)) {
     console.error(
       `Error: Invalid format '${values.format}'. Must be 'json' or 'text'.`,
@@ -63,7 +63,6 @@ function parseCliArgs(): CliOptions {
     process.exit(1);
   }
 
-  // Validate check option
   if (
     values.check &&
     !["agent", "interactive", "hybrid"].includes(values.check)
@@ -110,8 +109,8 @@ EXAMPLES:
   npx am-i-vibing --debug            # Debug with full environment info
 
 EXIT CODES:
-  0  Agentic environment detected (or specific check passed)
-  1  No agentic environment detected (or specific check failed)
+  0  Agent detected (or specific check passed)
+  1  No agent detected (or specific check failed)
 `);
 }
 
@@ -131,15 +130,21 @@ function checkEnvironmentType(
   }
 }
 
-function formatOutput(
-  result: ReturnType<typeof detectAgenticEnvironment>,
-  options: CliOptions,
-): string {
+function formatAgent(agent: AgentInfo): string {
+  const version = agent.version ? ` v${agent.version}` : "";
+  return `[${agent.id}] ${agent.name} (${agent.type})${version}`;
+}
+
+function formatEnvironment(environment: EnvironmentInfo): string {
+  return `[${environment.id}] ${environment.name} (${environment.kind})`;
+}
+
+function formatOutput(result: DetectionResult, options: CliOptions): string {
   if (options.debug) {
     let processAncestry: any[] = [];
     try {
       processAncestry = getProcessAncestry();
-    } catch (error) {
+    } catch {
       processAncestry = [{ error: "Failed to get process ancestry" }];
     }
 
@@ -159,21 +164,37 @@ function formatOutput(
     if (options.check) {
       return checkEnvironmentType(options.check, options) ? "true" : "false";
     }
-    return result.isAgentic ? `${result.name}` : "none";
+    return result.agent?.name ?? "none";
   }
 
   if (options.check) {
     const matches = checkEnvironmentType(options.check, options);
     return matches
-      ? `✓ Running in ${options.check} environment: ${result.name}`
+      ? `✓ Running in ${options.check} environment: ${result.agent?.name}`
       : `✗ Not running in ${options.check} environment`;
   }
 
-  if (!result.isAgentic) {
+  const lines: string[] = [];
+  if (result.agent) {
+    lines.push(`✓ Agent: ${formatAgent(result.agent)}`);
+    if (result.agent.sessionId) {
+      lines.push(`    sessionId: ${result.agent.sessionId}`);
+    }
+  }
+  if (result.environment) {
+    const prefix = result.agent ? "  Environment" : "✓ Environment";
+    lines.push(`${prefix}: ${formatEnvironment(result.environment)}`);
+    if (result.environment.containerId) {
+      lines.push(`    containerId: ${result.environment.containerId}`);
+    }
+    if (result.environment.runId) {
+      lines.push(`    runId: ${result.environment.runId}`);
+    }
+  }
+  if (lines.length === 0) {
     return "✗ No agentic environment detected";
   }
-
-  return `✓ Detected: [${result.id}] ${result.name} (${result.type})`;
+  return lines.join("\n");
 }
 
 function main(): void {
