@@ -56,6 +56,16 @@ export const providers: ProviderConfig[] = [
     envVars: ["CURSOR_TRACE_ID"],
   },
   {
+    id: "antigravity",
+    name: "Antigravity",
+    type: "agent",
+    envVars: [
+      {
+        any: ["ANTIGRAVITY_AGENT", "ANTIGRAVITY_PROJECT_ID"],
+      },
+    ],
+  },
+  {
     id: "gemini-agent",
     name: "Gemini CLI",
     type: "agent",

@@ -310,6 +310,30 @@ describe("detectAgenticEnvironment", () => {
     expect(interactiveResult.name).toBe("Zed");
     expect(interactiveResult.type).toBe("interactive");
   });
+
+  it("should detect Antigravity environment via ANTIGRAVITY_AGENT", () => {
+    const result = detectAgenticEnvironment({
+      env: { ANTIGRAVITY_AGENT: "1" },
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("antigravity");
+    expect(result.name).toBe("Antigravity");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should detect Antigravity environment via ANTIGRAVITY_PROJECT_ID", () => {
+    const result = detectAgenticEnvironment({
+      env: {
+        ANTIGRAVITY_PROJECT_ID: "3f00a6d1-ebcf-478a-91b2-de1b1ed4993d",
+      },
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("antigravity");
+    expect(result.name).toBe("Antigravity");
+    expect(result.type).toBe("agent");
+  });
 });
 
 describe("process ancestry detection (opt-in)", () => {
