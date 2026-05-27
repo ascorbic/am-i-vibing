@@ -1,5 +1,11 @@
 # am-i-vibing
 
+## 0.4.0
+
+### Minor Changes
+
+- [#82](https://github.com/ascorbic/am-i-vibing/pull/82) [`f571b73`](https://github.com/ascorbic/am-i-vibing/commit/f571b7321cb3005888bbe840f84fe5bbb7a36ff3) Thanks [@MattieTK](https://github.com/MattieTK)! - Add detection for Antigravity CLI agent via `ANTIGRAVITY_AGENT` or `ANTIGRAVITY_PROJECT_ID` environment variables.
+
 ## 0.3.0
 
 ### Minor Changes
