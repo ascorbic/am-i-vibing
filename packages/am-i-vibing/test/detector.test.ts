@@ -1,314 +1,428 @@
 import { describe, it, expect } from "vitest";
 import {
+  detectAgent,
   detectAgenticEnvironment,
+  detectEnvironment,
   isAgent,
-  isInteractive,
   isHybrid,
+  isInteractive,
+  isProvider,
 } from "../src/detector.js";
 
 describe("detectAgenticEnvironment", () => {
-  it("should return false for non-agentic environment", () => {
+  it("returns a fully null result for a non-agentic environment", () => {
     const result = detectAgenticEnvironment({ env: {} });
     expect(result.isAgentic).toBe(false);
-    expect(result.name).toBe(null);
+    expect(result.agent).toBe(null);
+    expect(result.environment).toBe(null);
   });
 
-  it("should detect Jules environment", () => {
-    const env = {
-      HOME: "/home/jules",
-      USER: "swebot",
-    };
-    const result = detectAgenticEnvironment({ env });
+  it("detects Jules", () => {
+    const result = detectAgenticEnvironment({
+      env: { HOME: "/home/jules", USER: "swebot" },
+    });
     expect(result.isAgentic).toBe(true);
-    expect(result.name).toBe("Jules");
-    expect(result.id).toBe("jules");
+    expect(result.agent?.id).toBe("jules");
+    expect(result.agent?.name).toBe("Jules");
+    expect(result.environment?.id).toBe("jules-cloud");
   });
 
-  it("should detect Claude Code environment", () => {
+  it("detects Claude Code", () => {
     const result = detectAgenticEnvironment({ env: { CLAUDECODE: "true" } });
-
     expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("claude-code");
-    expect(result.name).toBe("Claude Code");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("claude-code");
+    expect(result.agent?.name).toBe("Claude Code");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should detect Cursor environment", () => {
+  it("detects Cursor as interactive", () => {
     const result = detectAgenticEnvironment({
       env: { CURSOR_TRACE_ID: "cursor-trace-123" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("cursor");
-    expect(result.name).toBe("Cursor");
-    expect(result.type).toBe("interactive");
+    expect(result.agent?.id).toBe("cursor");
+    expect(result.agent?.name).toBe("Cursor");
+    expect(result.agent?.type).toBe("interactive");
   });
 
-  it("should detect GitHub Copilot Agent environment", () => {
+  it("detects GitHub Copilot in VS Code", () => {
     const result = detectAgenticEnvironment({
-      env: {
-        TERM_PROGRAM: "vscode",
-        GIT_PAGER: "cat",
-      },
+      env: { TERM_PROGRAM: "vscode", GIT_PAGER: "cat" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("vscode-copilot-agent");
-    expect(result.name).toBe("GitHub Copilot in VS Code");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("vscode-copilot-agent");
+    expect(result.agent?.name).toBe("GitHub Copilot in VS Code");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should detect Cursor Agent environment", () => {
+  it("detects Cursor Agent (more specific) before Cursor", () => {
     const result = detectAgenticEnvironment({
       env: {
         CURSOR_TRACE_ID: "cursor-trace-123",
         PAGER: "head -n 10000 | cat",
       },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("cursor-agent");
-    expect(result.name).toBe("Cursor Agent");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("cursor-agent");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should detect Replit AI environment", () => {
-    const result = detectAgenticEnvironment({ env: { REPL_ID: "repl-123" } });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("replit");
-    expect(result.name).toBe("Replit");
-    expect(result.type).toBe("agent");
+  it("detects Replit", () => {
+    const result = detectAgenticEnvironment({
+      env: { REPL_ID: "repl-123" },
+    });
+    expect(result.agent?.id).toBe("replit");
+    expect(result.agent?.name).toBe("Replit");
+    expect(result.environment?.id).toBe("replit-cloud");
   });
 
-  it("should detect OpenCode environment", () => {
+  it("detects OpenCode", () => {
     const result = detectAgenticEnvironment({ env: { OPENCODE: "1" } });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("opencode");
-    expect(result.name).toBe("OpenCode");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("opencode");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should detect OpenCode environment via legacy env vars", () => {
+  it("detects OpenCode via legacy env vars", () => {
     const result = detectAgenticEnvironment({
       env: { OPENCODE_BIN_PATH: "/usr/local/bin/opencode" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("opencode");
-    expect(result.name).toBe("OpenCode");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("opencode");
   });
 
-  it("should detect Aider environment", () => {
+  it("detects Aider", () => {
     const result = detectAgenticEnvironment({
       env: { AIDER_API_KEY: "aider-key" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("aider");
-    expect(result.name).toBe("Aider");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("aider");
   });
 
-  it("should detect Bolt.new Agent environment", () => {
+  it("detects Bolt.new Agent", () => {
     const result = detectAgenticEnvironment({
-      env: {
-        SHELL: "/bin/jsh",
-        npm_config_yes: "true",
-      },
+      env: { SHELL: "/bin/jsh", npm_config_yes: "true" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("bolt-agent");
-    expect(result.name).toBe("Bolt.new Agent");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("bolt-agent");
+    expect(result.environment?.id).toBe("webcontainer");
   });
 
-  it("should detect Bolt.new interactive environment", () => {
+  it("detects Bolt.new interactive", () => {
     const result = detectAgenticEnvironment({ env: { SHELL: "/bin/jsh" } });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("bolt");
-    expect(result.name).toBe("Bolt.new");
-    expect(result.type).toBe("interactive");
+    expect(result.agent?.id).toBe("bolt");
+    expect(result.environment?.id).toBe("webcontainer");
   });
 
-  it("should detect Zed Agent environment", () => {
+  it("detects Zed Agent", () => {
     const result = detectAgenticEnvironment({
-      env: {
-        TERM_PROGRAM: "zed",
-        PAGER: "cat",
-      },
+      env: { TERM_PROGRAM: "zed", PAGER: "cat" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("zed-agent");
-    expect(result.name).toBe("Zed Agent");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("zed-agent");
+    expect(result.environment?.id).toBe("zed");
   });
 
-  it("should detect Zed interactive environment", () => {
+  it("detects Zed interactive", () => {
     const result = detectAgenticEnvironment({ env: { TERM_PROGRAM: "zed" } });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("zed");
-    expect(result.name).toBe("Zed");
-    expect(result.type).toBe("interactive");
+    expect(result.agent?.id).toBe("zed");
   });
 
-  it("should detect Warp hybrid environment", () => {
+  it("detects Warp as hybrid", () => {
     const result = detectAgenticEnvironment({
       env: { TERM_PROGRAM: "WarpTerminal" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("warp");
-    expect(result.name).toBe("Warp Terminal");
-    expect(result.type).toBe("hybrid");
+    expect(result.agent?.id).toBe("warp");
+    expect(result.agent?.type).toBe("hybrid");
   });
 
-  it("should detect Gemini CLI via GEMINI_CLI env var", () => {
+  it("detects Gemini CLI via GEMINI_CLI env var", () => {
     const result = detectAgenticEnvironment({ env: { GEMINI_CLI: "1" } });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("gemini-agent");
-    expect(result.name).toBe("Gemini CLI");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("gemini-agent");
+    expect(result.agent?.name).toBe("Gemini CLI");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should not detect Gemini CLI when GEMINI_CLI has the wrong value", () => {
-    // Gemini specifically sets GEMINI_CLI=1; any other value shouldn't match.
+  it("does not detect Gemini CLI when GEMINI_CLI has the wrong value", () => {
     const result = detectAgenticEnvironment({
       env: { GEMINI_CLI: "something-else" },
     });
     expect(result.isAgentic).toBe(false);
   });
 
-  it("should detect Codex via CODEX_THREAD_ID env var", () => {
+  it("detects Codex via CODEX_THREAD_ID env var", () => {
     const result = detectAgenticEnvironment({
       env: { CODEX_THREAD_ID: "thread-abc" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("codex");
-    expect(result.name).toBe("OpenAI Codex");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("codex");
+    expect(result.agent?.name).toBe("OpenAI Codex");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should detect Crush via CRUSH=1 env var", () => {
+  it("detects Crush via CRUSH=1 env var", () => {
     const result = detectAgenticEnvironment({ env: { CRUSH: "1" } });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("crush");
-    expect(result.name).toBe("Crush");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("crush");
+    expect(result.agent?.name).toBe("Crush");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should detect Crush via AGENT=crush env var", () => {
+  it("detects Crush via AGENT=crush env var", () => {
     const result = detectAgenticEnvironment({ env: { AGENT: "crush" } });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("crush");
+    expect(result.agent?.id).toBe("crush");
   });
 
-  it("should detect Amp via AMP_CURRENT_THREAD_ID env var", () => {
+  it("detects Amp via AMP_CURRENT_THREAD_ID env var", () => {
     const result = detectAgenticEnvironment({
       env: { AMP_CURRENT_THREAD_ID: "T-abc123" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("amp");
-    expect(result.name).toBe("Amp");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("amp");
+    expect(result.agent?.name).toBe("Amp");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should detect Amp via AGENT=amp env var", () => {
+  it("detects Amp via AGENT=amp env var", () => {
     const result = detectAgenticEnvironment({ env: { AGENT: "amp" } });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("amp");
+    expect(result.agent?.id).toBe("amp");
   });
 
-  it("should detect Auggie via AUGMENT_AGENT=1 env var", () => {
+  it("detects Auggie via AUGMENT_AGENT=1 env var", () => {
     const result = detectAgenticEnvironment({
       env: { AUGMENT_AGENT: "1" },
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("auggie");
-    expect(result.name).toBe("Auggie");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("auggie");
+    expect(result.agent?.name).toBe("Auggie");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should not detect Auggie when AUGMENT_AGENT has the wrong value", () => {
+  it("does not detect Auggie when AUGMENT_AGENT has the wrong value", () => {
     const result = detectAgenticEnvironment({
       env: { AUGMENT_AGENT: "0" },
     });
-
     expect(result.isAgentic).toBe(false);
   });
 
-  it("should detect Qwen Code via QWEN_CODE=1 env var", () => {
-    const result = detectAgenticEnvironment({
-      env: { QWEN_CODE: "1" },
-    });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("qwen-code");
-    expect(result.name).toBe("Qwen Code");
-    expect(result.type).toBe("agent");
+  it("detects Qwen Code via QWEN_CODE=1 env var", () => {
+    const result = detectAgenticEnvironment({ env: { QWEN_CODE: "1" } });
+    expect(result.agent?.id).toBe("qwen-code");
+    expect(result.agent?.name).toBe("Qwen Code");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should handle false positive scenarios", () => {
+  it("returns a non-agentic result when no signals match", () => {
     const result = detectAgenticEnvironment({
       env: { RANDOM_VARIABLE: "some-value" },
     });
-
     expect(result.isAgentic).toBe(false);
   });
+});
 
-  it("should distinguish between agent and interactive variants", () => {
-    const agentResult = detectAgenticEnvironment({
-      env: {
-        CURSOR_TRACE_ID: "cursor-trace-123",
-        PAGER: "head -n 10000 | cat",
-      },
-    });
-
-    expect(agentResult.id).toBe("cursor-agent");
-    expect(agentResult.name).toBe("Cursor Agent");
-    expect(agentResult.type).toBe("agent");
-
-    const interactiveResult = detectAgenticEnvironment({
-      env: { CURSOR_TRACE_ID: "cursor-trace-123" },
-    });
-
-    expect(interactiveResult.id).toBe("cursor");
-    expect(interactiveResult.name).toBe("Cursor");
-    expect(interactiveResult.type).toBe("interactive");
+describe("detectAgent", () => {
+  it("returns null when nothing matches", () => {
+    expect(detectAgent({ env: {} })).toBe(null);
   });
 
-  it("should distinguish between Zed agent and interactive variants", () => {
-    const agentResult = detectAgenticEnvironment({
+  it("populates version when versionEnvVar is set on the provider", () => {
+    const agent = detectAgent({
+      env: { CLAUDECODE: "1", CLAUDE_CODE_VERSION: "2.1.42" },
+    });
+    expect(agent?.id).toBe("claude-code");
+    expect(agent?.version).toBe("2.1.42");
+  });
+
+  it("populates sessionId from the first non-empty extractor entry", () => {
+    const agent = detectAgent({
       env: {
-        TERM_PROGRAM: "zed",
-        PAGER: "cat",
+        CLAUDECODE: "1",
+        CLAUDE_CODE_REMOTE_SESSION_ID: "remote-session",
       },
     });
+    expect(agent?.sessionId).toBe("remote-session");
+  });
 
-    expect(agentResult.id).toBe("zed-agent");
-    expect(agentResult.name).toBe("Zed Agent");
-    expect(agentResult.type).toBe("agent");
-
-    const interactiveResult = detectAgenticEnvironment({
-      env: { TERM_PROGRAM: "zed" },
+  it("prefers earlier extractor entries when multiple are set", () => {
+    const agent = detectAgent({
+      env: {
+        CLAUDECODE: "1",
+        CLAUDE_CODE_SESSION_ID: "primary",
+        CLAUDE_CODE_REMOTE_SESSION_ID: "fallback",
+      },
     });
+    expect(agent?.sessionId).toBe("primary");
+  });
 
-    expect(interactiveResult.id).toBe("zed");
-    expect(interactiveResult.name).toBe("Zed");
-    expect(interactiveResult.type).toBe("interactive");
+  it("populates Cursor sessionId from CURSOR_TRACE_ID", () => {
+    const agent = detectAgent({ env: { CURSOR_TRACE_ID: "trace-xyz" } });
+    expect(agent?.sessionId).toBe("trace-xyz");
+  });
+
+  it("populates Codex sessionId from CODEX_THREAD_ID", () => {
+    const agent = detectAgent({ env: { CODEX_THREAD_ID: "thread-xyz" } });
+    expect(agent?.id).toBe("codex");
+    expect(agent?.sessionId).toBe("thread-xyz");
+  });
+
+  it("omits version and sessionId when no env vars are present", () => {
+    const agent = detectAgent({ env: { CLAUDECODE: "1" } });
+    expect(agent?.version).toBeUndefined();
+    expect(agent?.sessionId).toBeUndefined();
+  });
+});
+
+describe("detectEnvironment", () => {
+  it("returns null when no environment signal is present", () => {
+    expect(detectEnvironment({ env: {} })).toBe(null);
+  });
+
+  it("detects Claude Code Cloud via CLAUDE_CODE_REMOTE", () => {
+    const env = detectEnvironment({
+      env: {
+        CLAUDE_CODE_REMOTE: "true",
+        CLAUDE_CODE_CONTAINER_ID: "container_xyz",
+      },
+    });
+    expect(env?.id).toBe("claude-code-cloud");
+    expect(env?.kind).toBe("cloud-sandbox");
+    expect(env?.containerId).toBe("container_xyz");
+  });
+
+  it("detects Claude Code Cloud via container id alone", () => {
+    const env = detectEnvironment({
+      env: { CLAUDE_CODE_CONTAINER_ID: "container_xyz" },
+    });
+    expect(env?.id).toBe("claude-code-cloud");
+  });
+
+  it("detects GitHub Actions and extracts containerId + runId", () => {
+    const env = detectEnvironment({
+      env: {
+        GITHUB_ACTIONS: "true",
+        GITHUB_RUN_ID: "42",
+        RUNNER_NAME: "ubuntu-latest-1",
+      },
+    });
+    expect(env?.id).toBe("github-actions");
+    expect(env?.kind).toBe("ci-runner");
+    expect(env?.containerId).toBe("ubuntu-latest-1");
+    expect(env?.runId).toBe("42");
+  });
+
+  it("detects GitLab CI and extracts runId", () => {
+    const env = detectEnvironment({
+      env: { GITLAB_CI: "true", CI_JOB_ID: "9001" },
+    });
+    expect(env?.id).toBe("gitlab-ci");
+    expect(env?.runId).toBe("9001");
+  });
+
+  it("detects CircleCI", () => {
+    const env = detectEnvironment({
+      env: { CIRCLECI: "true", CIRCLE_BUILD_NUM: "777" },
+    });
+    expect(env?.id).toBe("circleci");
+    expect(env?.runId).toBe("777");
+  });
+
+  it("detects Buildkite", () => {
+    const env = detectEnvironment({
+      env: {
+        BUILDKITE: "true",
+        BUILDKITE_AGENT_NAME: "agent-1",
+        BUILDKITE_BUILD_ID: "build-1",
+      },
+    });
+    expect(env?.id).toBe("buildkite");
+    expect(env?.containerId).toBe("agent-1");
+    expect(env?.runId).toBe("build-1");
+  });
+
+  it("detects Replit cloud and uses REPL_ID as containerId", () => {
+    const env = detectEnvironment({ env: { REPL_ID: "repl-abc" } });
+    expect(env?.id).toBe("replit-cloud");
+    expect(env?.containerId).toBe("repl-abc");
+  });
+
+  it("detects WebContainer via SHELL=/bin/jsh", () => {
+    const env = detectEnvironment({ env: { SHELL: "/bin/jsh" } });
+    expect(env?.id).toBe("webcontainer");
+    expect(env?.kind).toBe("webcontainer");
+  });
+
+  it("detects VS Code as IDE", () => {
+    const env = detectEnvironment({ env: { TERM_PROGRAM: "vscode" } });
+    expect(env?.id).toBe("vscode");
+    expect(env?.kind).toBe("ide");
+  });
+
+  it("detects Cursor as IDE", () => {
+    const env = detectEnvironment({ env: { CURSOR_TRACE_ID: "trace-xyz" } });
+    expect(env?.id).toBe("cursor");
+    expect(env?.kind).toBe("ide");
+  });
+
+  it("detects Zed as IDE", () => {
+    const env = detectEnvironment({ env: { TERM_PROGRAM: "zed" } });
+    expect(env?.id).toBe("zed");
+  });
+
+  it("detects Jules sandbox", () => {
+    const env = detectEnvironment({
+      env: { HOME: "/home/jules", USER: "swebot" },
+    });
+    expect(env?.id).toBe("jules-cloud");
+    expect(env?.kind).toBe("cloud-sandbox");
+  });
+});
+
+describe("composed agent + environment results", () => {
+  it("populates only agent when no environment signal is present", () => {
+    const result = detectAgenticEnvironment({ env: { CLAUDECODE: "1" } });
+    expect(result.agent?.id).toBe("claude-code");
+    expect(result.environment).toBe(null);
+  });
+
+  it("populates only environment when no agent matches", () => {
+    const result = detectAgenticEnvironment({
+      env: { GITHUB_ACTIONS: "true", GITHUB_RUN_ID: "42" },
+    });
+    expect(result.isAgentic).toBe(false);
+    expect(result.agent).toBe(null);
+    expect(result.environment?.id).toBe("github-actions");
+    expect(result.environment?.runId).toBe("42");
+  });
+
+  it("populates both halves for Claude Code in the cloud sandbox", () => {
+    const result = detectAgenticEnvironment({
+      env: {
+        CLAUDECODE: "1",
+        CLAUDE_CODE_VERSION: "2.1.42",
+        CLAUDE_CODE_SESSION_ID: "cse_01abc",
+        CLAUDE_CODE_REMOTE: "true",
+        CLAUDE_CODE_CONTAINER_ID: "container_xyz",
+      },
+    });
+    expect(result.agent?.id).toBe("claude-code");
+    expect(result.agent?.version).toBe("2.1.42");
+    expect(result.agent?.sessionId).toBe("cse_01abc");
+    expect(result.environment?.id).toBe("claude-code-cloud");
+    expect(result.environment?.containerId).toBe("container_xyz");
+  });
+
+  it("populates both halves for Claude Code on a GitHub Actions runner", () => {
+    const result = detectAgenticEnvironment({
+      env: {
+        CLAUDECODE: "1",
+        CLAUDE_CODE_VERSION: "2.1.42",
+        GITHUB_ACTIONS: "true",
+        GITHUB_RUN_ID: "9999",
+        RUNNER_NAME: "ubuntu-latest-1",
+      },
+    });
+    expect(result.agent?.id).toBe("claude-code");
+    expect(result.environment?.id).toBe("github-actions");
+    expect(result.environment?.containerId).toBe("ubuntu-latest-1");
+    expect(result.environment?.runId).toBe("9999");
+  });
+
+  it("isAgentic is determined by agent presence, not environment", () => {
+    const ciOnly = detectAgenticEnvironment({
+      env: { GITHUB_ACTIONS: "true" },
+    });
+    expect(ciOnly.isAgentic).toBe(false);
+
+    const agentOnly = detectAgenticEnvironment({ env: { CLAUDECODE: "1" } });
+    expect(agentOnly.isAgentic).toBe(true);
   });
 
   it("should detect Antigravity environment via ANTIGRAVITY_AGENT", () => {
@@ -337,10 +451,10 @@ describe("detectAgenticEnvironment", () => {
 });
 
 describe("process ancestry detection (opt-in)", () => {
-  it("should NOT consult processChecks by default", () => {
+  it("does NOT consult processChecks by default", () => {
     // Octofriend is detectable only via processChecks. With checkProcesses
-    // disabled (the default), passing an ancestry that names octofriend should
-    // not yield a match.
+    // disabled (the default), passing an ancestry that names octofriend
+    // should not yield a match.
     const result = detectAgenticEnvironment({
       env: {},
       processAncestry: [{ command: "octofriend-cli" }],
@@ -349,57 +463,48 @@ describe("process ancestry detection (opt-in)", () => {
     expect(result.isAgentic).toBe(false);
   });
 
-  it("should detect Octofriend when checkProcesses is enabled", () => {
+  it("detects Octofriend when checkProcesses is enabled", () => {
     const result = detectAgenticEnvironment({
       env: {},
       processAncestry: [{ command: "octofriend-cli" }],
       checkProcesses: true,
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("octofriend");
-    expect(result.name).toBe("Octofriend");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("octofriend");
+    expect(result.agent?.name).toBe("Octofriend");
+    expect(result.agent?.type).toBe("agent");
   });
 
-  it("should detect Devin via process ancestry when checkProcesses is enabled", () => {
+  it("detects Devin via process ancestry when checkProcesses is enabled", () => {
     const result = detectAgenticEnvironment({
       env: {},
       processAncestry: [{ command: "/Users/me/.local/bin/devin" }],
       checkProcesses: true,
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("devin");
-    expect(result.name).toBe("Devin");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("devin");
+    expect(result.agent?.name).toBe("Devin");
   });
 
-  it("should detect Factory Droid via process ancestry when checkProcesses is enabled", () => {
+  it("detects Factory Droid via process ancestry when checkProcesses is enabled", () => {
     const result = detectAgenticEnvironment({
       env: {},
       processAncestry: [{ command: "/usr/local/bin/droid" }],
       checkProcesses: true,
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("droid");
-    expect(result.name).toBe("Factory Droid");
-    expect(result.type).toBe("agent");
+    expect(result.agent?.id).toBe("droid");
+    expect(result.agent?.name).toBe("Factory Droid");
   });
 
-  it("should default checkProcesses to true when processAncestry is supplied without an explicit flag", () => {
+  it("defaults checkProcesses to true when processAncestry is supplied without an explicit flag", () => {
     // Convenience: passing ancestry without saying checkProcesses=true is
     // treated as opt-in, so callers don't have to set both.
     const result = detectAgenticEnvironment({
       env: {},
       processAncestry: [{ command: "node /path/to/octofriend" }],
     });
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("octofriend");
+    expect(result.agent?.id).toBe("octofriend");
   });
 
-  it("should still honor an explicit checkProcesses: false even when ancestry is supplied", () => {
+  it("honours an explicit checkProcesses: false even when ancestry is supplied", () => {
     const result = detectAgenticEnvironment({
       env: {},
       processAncestry: [{ command: "octofriend" }],
@@ -408,33 +513,27 @@ describe("process ancestry detection (opt-in)", () => {
     expect(result.isAgentic).toBe(false);
   });
 
-  it("should prefer env var matches over process ancestry", () => {
-    // Env var match should win even if ancestry would also match a different
-    // provider.
+  it("env-var match wins over a colliding process check", () => {
     const result = detectAgenticEnvironment({
       env: { CLAUDECODE: "true" },
       processAncestry: [{ command: "gemini" }, { command: "octofriend" }],
       checkProcesses: true,
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("claude-code");
+    expect(result.agent?.id).toBe("claude-code");
   });
 
-  it("should fall back to process ancestry when env vars don't match", () => {
+  it("falls back to process ancestry when env vars do not match", () => {
     const result = detectAgenticEnvironment({
       env: {},
       processAncestry: [{ command: "/usr/local/bin/octofriend" }],
       checkProcesses: true,
     });
-
-    expect(result.isAgentic).toBe(true);
-    expect(result.id).toBe("octofriend");
+    expect(result.agent?.id).toBe("octofriend");
   });
 });
 
 describe("convenience functions", () => {
-  it("isAgent should identify agent environments", () => {
+  it("isAgent identifies agent environments", () => {
     expect(isAgent({ env: { CLAUDECODE: "true" } })).toBe(true);
     expect(isAgent({ env: { CURSOR_TRACE_ID: "trace-123" } })).toBe(false);
     expect(
@@ -447,34 +546,39 @@ describe("convenience functions", () => {
     ).toBe(true);
   });
 
-  it("isInteractive should identify interactive environments", () => {
+  it("isInteractive identifies interactive environments", () => {
     expect(isInteractive({ env: { CURSOR_TRACE_ID: "trace-123" } })).toBe(true);
   });
 
-  it("isHybrid should identify hybrid environments", () => {
+  it("isHybrid identifies hybrid environments", () => {
     expect(isHybrid({ env: { TERM_PROGRAM: "WarpTerminal" } })).toBe(true);
     expect(isHybrid({ env: { CLAUDECODE: "true" } })).toBe(false);
     expect(isHybrid({ env: { CURSOR_TRACE_ID: "trace-123" } })).toBe(false);
+  });
+
+  it("isProvider matches by name", () => {
+    expect(isProvider("Claude Code", { env: { CLAUDECODE: "1" } })).toBe(true);
+    expect(isProvider("Cursor", { env: { CLAUDECODE: "1" } })).toBe(false);
   });
 });
 
 describe("legacy positional API (deprecated)", () => {
   // These call shapes are kept working for backwards compatibility with
   // callers from before the options-object signature landed.
-  it("should accept (env) positional", () => {
+  it("accepts (env) positional", () => {
     const result = detectAgenticEnvironment({ CLAUDECODE: "true" } as any);
-    expect(result.id).toBe("claude-code");
+    expect(result.agent?.id).toBe("claude-code");
   });
 
-  it("should accept (env, processAncestry) positional and treat ancestry as opt-in", () => {
+  it("accepts (env, processAncestry) positional and treats ancestry as opt-in", () => {
     const result = detectAgenticEnvironment(
       {} as any,
       [{ command: "octofriend" }],
     );
-    expect(result.id).toBe("octofriend");
+    expect(result.agent?.id).toBe("octofriend");
   });
 
-  it("should not consult processAncestry under the legacy (env) one-arg form", () => {
+  it("does not consult processAncestry under the legacy (env) one-arg form", () => {
     // No second arg means no opt-in; ancestry isn't consulted.
     const result = detectAgenticEnvironment({} as any);
     expect(result.isAgentic).toBe(false);

@@ -4,6 +4,15 @@
 export type AgenticType = "agent" | "interactive" | "hybrid";
 
 /**
+ * The kind of runtime environment a process is executing in
+ */
+export type EnvironmentKind =
+  | "cloud-sandbox"
+  | "ci-runner"
+  | "ide"
+  | "webcontainer";
+
+/**
  * Environment variable definition - either just a name or a name/value tuple
  */
 export type EnvVarDefinition = string | [string, string];
@@ -23,7 +32,13 @@ export interface EnvVarGroup {
 }
 
 /**
- * Configuration for detecting a specific AI coding provider
+ * Declarative extractor: the env var(s) to read for a given field.
+ * If an array is given, the first non-empty value wins.
+ */
+export type EnvVarExtractor = string | string[];
+
+/**
+ * Configuration for detecting a specific AI coding agent
  */
 export interface ProviderConfig {
   /** Unique identifier for the provider */
@@ -43,23 +58,105 @@ export interface ProviderConfig {
 
   /** Custom detection functions for complex logic */
   customDetectors?: (() => boolean)[];
+
+  /** Env var(s) to read for the agent's reported version */
+  versionEnvVar?: EnvVarExtractor;
+
+  /** Env var(s) to read for the agent's session/conversation id */
+  sessionIdEnvVar?: EnvVarExtractor;
 }
 
 /**
- * Result of agentic environment detection
+ * Configuration for detecting a runtime environment (cloud sandbox, CI runner, etc.)
+ */
+export interface EnvironmentConfig {
+  /** Unique identifier for the environment */
+  id: string;
+
+  /** Human-readable name of the environment */
+  name: string;
+
+  /** Kind of runtime environment */
+  kind: EnvironmentKind;
+
+  /** Environment variables */
+  envVars?: Array<EnvVarGroup | EnvVarDefinition>;
+
+  /** Process names to check for in the process tree */
+  processChecks?: string[];
+
+  /** Custom detection functions for complex logic */
+  customDetectors?: (() => boolean)[];
+
+  /** Env var(s) to read for a stable container/sandbox identifier */
+  containerIdEnvVar?: EnvVarExtractor;
+
+  /** Env var(s) to read for an execution/run identifier */
+  runIdEnvVar?: EnvVarExtractor;
+}
+
+/**
+ * Information about the detected AI agent
+ */
+export interface AgentInfo {
+  /** Unique identifier for the agent */
+  id: string;
+
+  /** Human-readable name of the agent */
+  name: string;
+
+  /** Type of AI coding environment */
+  type: AgenticType;
+
+  /** Reported version of the agent, if available */
+  version?: string;
+
+  /** Session/conversation identifier, if available */
+  sessionId?: string;
+}
+
+/**
+ * Information about the detected runtime environment
+ */
+export interface EnvironmentInfo {
+  /** Unique identifier for the environment */
+  id: string;
+
+  /** Human-readable name of the environment */
+  name: string;
+
+  /** Kind of runtime environment */
+  kind: EnvironmentKind;
+
+  /** Stable container/sandbox identifier, if available */
+  containerId?: string;
+
+  /** Execution/run identifier, if available */
+  runId?: string;
+}
+
+/**
+ * Result of agentic environment detection.
+ *
+ * Prefer destructuring the fields you use rather than passing the whole
+ * result object around:
+ *
+ * ```ts
+ * const { agent, environment } = detectAgenticEnvironment();
+ * ```
+ *
+ * New top-level fields may be added in future versions. Destructuring keeps
+ * your code forward-compatible with those additions.
  */
 export interface DetectionResult {
-  /** Whether an agentic environment was detected */
+  /** Whether an AI agent was detected */
   isAgentic: boolean;
 
-  /** ID of the detected provider, if any */
-  id: string | null;
+  /** Detected AI agent, or null if none */
+  agent: AgentInfo | null;
 
-  /** Name of the detected provider, if any */
-  name: string | null;
-
-  /** Type of agentic environment, if detected */
-  type: AgenticType | null;
+  /** Detected runtime environment, or null if none recognised */
+  environment: EnvironmentInfo | null;
 }
 
 /**
