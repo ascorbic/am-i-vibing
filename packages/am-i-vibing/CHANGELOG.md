@@ -1,5 +1,11 @@
 # am-i-vibing
 
+## 0.5.0
+
+### Minor Changes
+
+- [#87](https://github.com/ascorbic/am-i-vibing/pull/87) [`bf9deb7`](https://github.com/ascorbic/am-i-vibing/commit/bf9deb71e6cad57c9a10bca393bea01291b3d7ae) Thanks [@MattieTK](https://github.com/MattieTK)! - Add detection for the Pi coding agent (earendil-works/pi) via the `PI_CODING_AGENT=true` environment variable it sets on startup.
+
 ## 0.4.0
 
 ### Minor Changes
