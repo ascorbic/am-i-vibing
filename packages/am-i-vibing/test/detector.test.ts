@@ -33,6 +33,26 @@ describe("detectAgenticEnvironment", () => {
     expect(result.type).toBe("agent");
   });
 
+  it("should detect Pi environment", () => {
+    const result = detectAgenticEnvironment({
+      env: { PI_CODING_AGENT: "true" },
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("pi");
+    expect(result.name).toBe("Pi");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should not detect Pi when PI_CODING_AGENT has the wrong value", () => {
+    const result = detectAgenticEnvironment({
+      env: { PI_CODING_AGENT: "false" },
+    });
+
+    expect(result.isAgentic).toBe(false);
+    expect(result.id).toBe(null);
+  });
+
   it("should detect Cursor environment", () => {
     const result = detectAgenticEnvironment({
       env: { CURSOR_TRACE_ID: "cursor-trace-123" },
