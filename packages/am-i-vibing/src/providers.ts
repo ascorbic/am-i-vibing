@@ -266,6 +266,16 @@ export const providers: ProviderConfig[] = [
     // is the only reliable signal, so detection is opt-in via processAncestry.
     processChecks: ["droid"],
   },
+  {
+    id: "pi",
+    name: "Pi",
+    type: "agent",
+    // Pi's CLI entry point sets PI_CODING_AGENT=true on startup, and its bash tool
+    // passes the process env through to every command it runs (getShellEnv spreads
+    // ...process.env), so the variable is inherited by spawned shells.
+    // See: https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/cli.ts
+    envVars: [["PI_CODING_AGENT", "true"]],
+  },
 ];
 
 /**

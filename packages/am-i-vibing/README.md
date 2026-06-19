@@ -35,6 +35,7 @@ console.log(`Detected: ${result.name} (${result.type})`);
 - **Jules**
 - **Octofriend** (process detection only — requires `checkProcesses`)
 - **opencode**
+- **Pi**
 - **Replit**
 - **Warp**
 - **Windsurf**
