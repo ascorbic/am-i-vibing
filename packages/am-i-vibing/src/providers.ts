@@ -230,13 +230,13 @@ export const providers: ProviderConfig[] = [
   },
   {
     id: "warp",
-    name: "Warp Terminal",
-    type: "hybrid",
-    envVars: [
-      {
-        all: [["TERM_PROGRAM", "WarpTerminal"]],
-      },
-    ],
+    name: "Warp",
+    type: "agent",
+    // Warp's agent ("Oz") sets OZ_RUN_ID for commands it runs and reads it back
+    // to detect it is inside an agent run. TERM_PROGRAM=WarpTerminal is set in
+    // every Warp window, agent or not, so it is not a usable agent signal.
+    // https://github.com/warpdotdev/warp/blob/master/crates/warp_cli/src/lib.rs
+    envVars: [["OZ_RUN_ID"]],
   },
   {
     id: "octofriend",

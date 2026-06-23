@@ -178,15 +178,24 @@ describe("detectAgenticEnvironment", () => {
     expect(result.type).toBe("interactive");
   });
 
-  it("should detect Warp hybrid environment", () => {
+  it("should detect Warp agent environment via OZ_RUN_ID", () => {
     const result = detectAgenticEnvironment({
-      env: { TERM_PROGRAM: "WarpTerminal" },
+      env: { OZ_RUN_ID: "run-123" },
     });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("warp");
-    expect(result.name).toBe("Warp Terminal");
-    expect(result.type).toBe("hybrid");
+    expect(result.name).toBe("Warp");
+    expect(result.type).toBe("agent");
+  });
+
+  it("should not detect Warp from TERM_PROGRAM alone", () => {
+    const result = detectAgenticEnvironment({
+      env: { TERM_PROGRAM: "WarpTerminal" },
+    });
+
+    expect(result.isAgentic).toBe(false);
+    expect(result.id).toBe(null);
   });
 
   it("should detect Gemini CLI via GEMINI_CLI env var", () => {
@@ -471,8 +480,8 @@ describe("convenience functions", () => {
     expect(isInteractive({ env: { CURSOR_TRACE_ID: "trace-123" } })).toBe(true);
   });
 
-  it("isHybrid should identify hybrid environments", () => {
-    expect(isHybrid({ env: { TERM_PROGRAM: "WarpTerminal" } })).toBe(true);
+  it("isHybrid should return false when no hybrid provider matches", () => {
+    expect(isHybrid({ env: { OZ_RUN_ID: "run-123" } })).toBe(false);
     expect(isHybrid({ env: { CLAUDECODE: "true" } })).toBe(false);
     expect(isHybrid({ env: { CURSOR_TRACE_ID: "trace-123" } })).toBe(false);
   });
