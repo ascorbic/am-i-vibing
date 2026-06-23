@@ -71,7 +71,7 @@ The library detects three main types of environments:
 
 - **Agent**: Command was directly run by an AI agent (e.g. Claude Code, Codex CLI, Jules)
 - **Interactive**: Interactive commands run inside an AI environment (e.g. Cursor terminal, Replit shell)
-- **Hybrid**: Environments that combine both agentic and interactive features in the same session (e.g. Warp)
+- **Hybrid**: Environments that combine both agentic and interactive features in the same session
 
 There may be false positives, such as if a user directly runs a command in an terminal opened by an AI tool, such as a Copilot terminal in VS Code.
 
