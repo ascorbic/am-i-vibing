@@ -22,12 +22,12 @@
     "whoami": "tsx scripts/whoami.ts"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.18.2",
-    "@types/node": "24.12.4",
+    "@arethetypeswrong/cli": "0.18.4",
+    "@types/node": "24.13.2",
     "publint": "0.3.21",
-    "tsdown": "0.22.0",
+    "tsdown": "0.22.3",
     "typescript": "6.0.3",
-    "vitest": "4.1.6"
+    "vitest": "4.1.9"
   },
   "repository": {
     "type": "git",
