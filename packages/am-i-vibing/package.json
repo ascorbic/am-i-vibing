@@ -26,7 +26,7 @@
     "@types/node": "24.12.4",
     "publint": "0.3.21",
     "tsdown": "0.22.0",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "vitest": "4.1.6"
   },
   "repository": {
