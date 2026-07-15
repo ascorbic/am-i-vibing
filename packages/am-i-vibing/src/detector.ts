@@ -6,7 +6,20 @@ import type {
   EnvVarGroup,
 } from "./types.js";
 import { providers } from "./providers.js";
-import { getProcessAncestry } from "process-ancestry";
+
+// Loaded on demand so importing this package never requires Node's module graph.
+function getProcessAncestry(): Array<{ command?: string }> {
+  try {
+    const nodeModule = globalThis.process?.getBuiltinModule?.("module");
+    if (!nodeModule) {
+      return [];
+    }
+    const requireFromHere = nodeModule.createRequire(import.meta.url);
+    return requireFromHere("process-ancestry").getProcessAncestry();
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Check if a specific environment variable exists (handles both strings and tuples)
