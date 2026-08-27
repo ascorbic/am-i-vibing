@@ -13,9 +13,11 @@
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
+		/* Disalbe Source Maps */
+		"sourceMap": false,
+		"declarationMap": false,
 		/* AND if you're building for a library: */
 		"declaration": true,
-		"declarationMap": true,
 		/* If NOT transpiling with TypeScript: */
 		"module": "preserve",
 		"noEmit": true,
