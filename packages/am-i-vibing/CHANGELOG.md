@@ -1,5 +1,17 @@
 # am-i-vibing
 
+## 0.6.0
+
+### Minor Changes
+
+- [#90](https://github.com/ascorbic/am-i-vibing/pull/90) [`39a2d13`](https://github.com/ascorbic/am-i-vibing/commit/39a2d1383d337a0d79c75bb002c5ac559146e88d) Thanks [@ascorbic](https://github.com/ascorbic)! - Detect Warp's agent via the `OZ_RUN_ID` environment variable it sets while running an agent task, and report it as an `agent` rather than a `hybrid` environment.
+
+  Previously Warp was detected from `TERM_PROGRAM=WarpTerminal`, which is set in every Warp window whether or not its agent is active. That produced false positives for people using Warp as a regular terminal (e.g. running `astro dev` by hand). Plain Warp sessions are no longer detected; only commands run under Warp's agent are.
+
+### Patch Changes
+
+- [#93](https://github.com/ascorbic/am-i-vibing/pull/93) [`7610456`](https://github.com/ascorbic/am-i-vibing/commit/76104566f3cb3a399e8420e31bb14fff03ffa26d) Thanks [@thejackshelton](https://github.com/thejackshelton)! - Load `process-ancestry` only when opt-in process-tree detection is requested, so environment-only detection can be imported in runtimes without Node builtins.
+
 ## 0.5.0
 
 ### Minor Changes
