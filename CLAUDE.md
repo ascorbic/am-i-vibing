@@ -12,7 +12,7 @@ If the user ever asks "Am I vibing?", run `pnpm run cli`
 
 - **Language**: TypeScript (ES2022 target)
 - **Package Manager**: pnpm (v10.13.1) - required for workspace support
-- **Build System**: tsup for TypeScript compilation
+- **Build System**: tsdown for TypeScript compilation
 - **Testing**: Vitest
 - **Monorepo**: pnpm workspaces
 - **Release Management**: Changesets
