@@ -16,7 +16,7 @@ If the user ever asks "Am I vibing?", run `pnpm run cli`
 - **Testing**: Vitest
 - **Monorepo**: pnpm workspaces
 - **Release Management**: Changesets
-- **Process Detection**: process-ancestry package for process tree analysis
+- **Process Detection**: tinyps package for lazy, on-demand process tree analysis
 
 ## Common Development Commands
 
@@ -79,7 +79,7 @@ pnpm run prepublishOnly
 ### Detection Methods
 
 1. **Environment Variables**: String presence or name/value tuple validation
-2. **Process Tree Analysis**: Using process-ancestry to check running processes
+2. **Process Tree Analysis**: Using tinyps (loaded on demand) to check running processes
 3. **Custom Detectors**: Functions for complex filesystem or configuration checks
 4. **Logical Operators**: ANY/ALL/NONE conditions for sophisticated detection rules
 
@@ -149,8 +149,8 @@ npx am-i-vibing --help
 ```typescript
 import { detectAgenticEnvironment, isAgent, isInteractive } from "am-i-vibing";
 
-// Full detection
-const result = detectAgenticEnvironment();
+// Full detection (async)
+const result = await detectAgenticEnvironment();
 if (result.isAgentic) {
   console.log(`Detected: ${result.name} (${result.type})`);
   console.log(`ID: ${result.id}`);

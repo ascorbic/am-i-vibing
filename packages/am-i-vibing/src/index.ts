@@ -10,6 +10,8 @@ export type {
   DetectOptions,
   EnvVarDefinition,
   EnvVarGroup,
+  ProcessInfoShape,
+  ProcessAncestry,
 } from "./types.js";
 
 // Export providers
@@ -18,6 +20,7 @@ export { providers, getProvider, getProvidersByType } from "./providers.js";
 // Export detection functions
 export {
   detectAgenticEnvironment,
+  detectAgenticEnvironmentSync,
   isProvider,
   isAgent,
   isInteractive,

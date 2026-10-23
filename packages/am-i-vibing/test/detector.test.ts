@@ -1,14 +1,15 @@
 import { describe, it, expect } from "vitest";
 import {
   detectAgenticEnvironment,
+  detectAgenticEnvironmentSync,
   isAgent,
   isInteractive,
   isHybrid,
 } from "../src/detector.js";
 
-describe("detectAgenticEnvironment", () => {
+describe("detectAgenticEnvironmentSync", () => {
   it("should return false for non-agentic environment", () => {
-    const result = detectAgenticEnvironment({ env: {} });
+    const result = detectAgenticEnvironmentSync({ env: {} });
     expect(result.isAgentic).toBe(false);
     expect(result.name).toBe(null);
   });
@@ -18,14 +19,14 @@ describe("detectAgenticEnvironment", () => {
       HOME: "/home/jules",
       USER: "swebot",
     };
-    const result = detectAgenticEnvironment({ env });
+    const result = detectAgenticEnvironmentSync({ env });
     expect(result.isAgentic).toBe(true);
     expect(result.name).toBe("Jules");
     expect(result.id).toBe("jules");
   });
 
   it("should detect Claude Code environment", () => {
-    const result = detectAgenticEnvironment({ env: { CLAUDECODE: "true" } });
+    const result = detectAgenticEnvironmentSync({ env: { CLAUDECODE: "true" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("claude-code");
@@ -34,7 +35,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Pi environment", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { PI_CODING_AGENT: "true" },
     });
 
@@ -45,7 +46,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should not detect Pi when PI_CODING_AGENT has the wrong value", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { PI_CODING_AGENT: "false" },
     });
 
@@ -54,7 +55,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Cursor environment", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { CURSOR_TRACE_ID: "cursor-trace-123" },
     });
 
@@ -65,7 +66,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect GitHub Copilot Agent environment", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {
         TERM_PROGRAM: "vscode",
         GIT_PAGER: "cat",
@@ -79,7 +80,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Cursor Agent environment", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {
         CURSOR_TRACE_ID: "cursor-trace-123",
         PAGER: "head -n 10000 | cat",
@@ -93,7 +94,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Replit AI environment", () => {
-    const result = detectAgenticEnvironment({ env: { REPL_ID: "repl-123" } });
+    const result = detectAgenticEnvironmentSync({ env: { REPL_ID: "repl-123" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("replit");
@@ -102,7 +103,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect OpenCode environment", () => {
-    const result = detectAgenticEnvironment({ env: { OPENCODE: "1" } });
+    const result = detectAgenticEnvironmentSync({ env: { OPENCODE: "1" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("opencode");
@@ -111,7 +112,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect OpenCode environment via legacy env vars", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { OPENCODE_BIN_PATH: "/usr/local/bin/opencode" },
     });
 
@@ -122,7 +123,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Aider environment", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { AIDER_API_KEY: "aider-key" },
     });
 
@@ -133,7 +134,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Bolt.new Agent environment", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {
         SHELL: "/bin/jsh",
         npm_config_yes: "true",
@@ -147,7 +148,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Bolt.new interactive environment", () => {
-    const result = detectAgenticEnvironment({ env: { SHELL: "/bin/jsh" } });
+    const result = detectAgenticEnvironmentSync({ env: { SHELL: "/bin/jsh" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("bolt");
@@ -156,7 +157,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Zed Agent environment", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {
         TERM_PROGRAM: "zed",
         PAGER: "cat",
@@ -170,7 +171,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Zed interactive environment", () => {
-    const result = detectAgenticEnvironment({ env: { TERM_PROGRAM: "zed" } });
+    const result = detectAgenticEnvironmentSync({ env: { TERM_PROGRAM: "zed" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("zed");
@@ -179,7 +180,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Warp agent environment via OZ_RUN_ID", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { OZ_RUN_ID: "run-123" },
     });
 
@@ -190,7 +191,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should not detect Warp from TERM_PROGRAM alone", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { TERM_PROGRAM: "WarpTerminal" },
     });
 
@@ -199,7 +200,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Gemini CLI via GEMINI_CLI env var", () => {
-    const result = detectAgenticEnvironment({ env: { GEMINI_CLI: "1" } });
+    const result = detectAgenticEnvironmentSync({ env: { GEMINI_CLI: "1" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("gemini-agent");
@@ -209,14 +210,14 @@ describe("detectAgenticEnvironment", () => {
 
   it("should not detect Gemini CLI when GEMINI_CLI has the wrong value", () => {
     // Gemini specifically sets GEMINI_CLI=1; any other value shouldn't match.
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { GEMINI_CLI: "something-else" },
     });
     expect(result.isAgentic).toBe(false);
   });
 
   it("should detect Codex via CODEX_THREAD_ID env var", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { CODEX_THREAD_ID: "thread-abc" },
     });
 
@@ -227,7 +228,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Crush via CRUSH=1 env var", () => {
-    const result = detectAgenticEnvironment({ env: { CRUSH: "1" } });
+    const result = detectAgenticEnvironmentSync({ env: { CRUSH: "1" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("crush");
@@ -236,14 +237,14 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Crush via AGENT=crush env var", () => {
-    const result = detectAgenticEnvironment({ env: { AGENT: "crush" } });
+    const result = detectAgenticEnvironmentSync({ env: { AGENT: "crush" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("crush");
   });
 
   it("should detect Amp via AMP_CURRENT_THREAD_ID env var", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { AMP_CURRENT_THREAD_ID: "T-abc123" },
     });
 
@@ -254,14 +255,14 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Amp via AGENT=amp env var", () => {
-    const result = detectAgenticEnvironment({ env: { AGENT: "amp" } });
+    const result = detectAgenticEnvironmentSync({ env: { AGENT: "amp" } });
 
     expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("amp");
   });
 
   it("should detect Auggie via AUGMENT_AGENT=1 env var", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { AUGMENT_AGENT: "1" },
     });
 
@@ -272,7 +273,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should not detect Auggie when AUGMENT_AGENT has the wrong value", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { AUGMENT_AGENT: "0" },
     });
 
@@ -280,7 +281,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Qwen Code via QWEN_CODE=1 env var", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { QWEN_CODE: "1" },
     });
 
@@ -291,7 +292,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should handle false positive scenarios", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { RANDOM_VARIABLE: "some-value" },
     });
 
@@ -299,7 +300,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should distinguish between agent and interactive variants", () => {
-    const agentResult = detectAgenticEnvironment({
+    const agentResult = detectAgenticEnvironmentSync({
       env: {
         CURSOR_TRACE_ID: "cursor-trace-123",
         PAGER: "head -n 10000 | cat",
@@ -310,7 +311,7 @@ describe("detectAgenticEnvironment", () => {
     expect(agentResult.name).toBe("Cursor Agent");
     expect(agentResult.type).toBe("agent");
 
-    const interactiveResult = detectAgenticEnvironment({
+    const interactiveResult = detectAgenticEnvironmentSync({
       env: { CURSOR_TRACE_ID: "cursor-trace-123" },
     });
 
@@ -320,7 +321,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should distinguish between Zed agent and interactive variants", () => {
-    const agentResult = detectAgenticEnvironment({
+    const agentResult = detectAgenticEnvironmentSync({
       env: {
         TERM_PROGRAM: "zed",
         PAGER: "cat",
@@ -331,7 +332,7 @@ describe("detectAgenticEnvironment", () => {
     expect(agentResult.name).toBe("Zed Agent");
     expect(agentResult.type).toBe("agent");
 
-    const interactiveResult = detectAgenticEnvironment({
+    const interactiveResult = detectAgenticEnvironmentSync({
       env: { TERM_PROGRAM: "zed" },
     });
 
@@ -341,7 +342,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Antigravity environment via ANTIGRAVITY_AGENT", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { ANTIGRAVITY_AGENT: "1" },
     });
 
@@ -352,7 +353,7 @@ describe("detectAgenticEnvironment", () => {
   });
 
   it("should detect Antigravity environment via ANTIGRAVITY_PROJECT_ID", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {
         ANTIGRAVITY_PROJECT_ID: "3f00a6d1-ebcf-478a-91b2-de1b1ed4993d",
       },
@@ -365,12 +366,12 @@ describe("detectAgenticEnvironment", () => {
   });
 });
 
-describe("process ancestry detection (opt-in)", () => {
+describe("process ancestry detection (pre-supplied ancestry, sync)", () => {
   it("should NOT consult processChecks by default", () => {
     // Octofriend is detectable only via processChecks. With checkProcesses
     // disabled (the default), passing an ancestry that names octofriend should
     // not yield a match.
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {},
       processAncestry: [{ command: "octofriend-cli" }],
       checkProcesses: false,
@@ -379,7 +380,7 @@ describe("process ancestry detection (opt-in)", () => {
   });
 
   it("should detect Octofriend when checkProcesses is enabled", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {},
       processAncestry: [{ command: "octofriend-cli" }],
       checkProcesses: true,
@@ -392,7 +393,7 @@ describe("process ancestry detection (opt-in)", () => {
   });
 
   it("should detect Devin via process ancestry when checkProcesses is enabled", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {},
       processAncestry: [{ command: "/Users/me/.local/bin/devin" }],
       checkProcesses: true,
@@ -405,7 +406,7 @@ describe("process ancestry detection (opt-in)", () => {
   });
 
   it("should detect Factory Droid via process ancestry when checkProcesses is enabled", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {},
       processAncestry: [{ command: "/usr/local/bin/droid" }],
       checkProcesses: true,
@@ -420,7 +421,7 @@ describe("process ancestry detection (opt-in)", () => {
   it("should default checkProcesses to true when processAncestry is supplied without an explicit flag", () => {
     // Convenience: passing ancestry without saying checkProcesses=true is
     // treated as opt-in, so callers don't have to set both.
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {},
       processAncestry: [{ command: "node /path/to/octofriend" }],
     });
@@ -429,7 +430,7 @@ describe("process ancestry detection (opt-in)", () => {
   });
 
   it("should still honor an explicit checkProcesses: false even when ancestry is supplied", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {},
       processAncestry: [{ command: "octofriend" }],
       checkProcesses: false,
@@ -440,7 +441,7 @@ describe("process ancestry detection (opt-in)", () => {
   it("should prefer env var matches over process ancestry", () => {
     // Env var match should win even if ancestry would also match a different
     // provider.
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: { CLAUDECODE: "true" },
       processAncestry: [{ command: "gemini" }, { command: "octofriend" }],
       checkProcesses: true,
@@ -451,9 +452,20 @@ describe("process ancestry detection (opt-in)", () => {
   });
 
   it("should fall back to process ancestry when env vars don't match", () => {
-    const result = detectAgenticEnvironment({
+    const result = detectAgenticEnvironmentSync({
       env: {},
       processAncestry: [{ command: "/usr/local/bin/octofriend" }],
+      checkProcesses: true,
+    });
+
+    expect(result.isAgentic).toBe(true);
+    expect(result.id).toBe("octofriend");
+  });
+
+  it("should match process checks by process name as well as command", () => {
+    const result = detectAgenticEnvironmentSync({
+      env: {},
+      processAncestry: [{ name: "octofriend" }],
       checkProcesses: true,
     });
 
@@ -487,25 +499,18 @@ describe("convenience functions", () => {
   });
 });
 
-describe("legacy positional API (deprecated)", () => {
-  // These call shapes are kept working for backwards compatibility with
-  // callers from before the options-object signature landed.
-  it("should accept (env) positional", () => {
-    const result = detectAgenticEnvironment({ CLAUDECODE: "true" } as any);
+describe("detectAgenticEnvironment (async)", () => {
+  it("should resolve with env-var matches", async () => {
+    const result = await detectAgenticEnvironment({
+      env: { CLAUDECODE: "true" },
+    });
+    expect(result.isAgentic).toBe(true);
     expect(result.id).toBe("claude-code");
   });
 
-  it("should accept (env, processAncestry) positional and treat ancestry as opt-in", () => {
-    const result = detectAgenticEnvironment(
-      {} as any,
-      [{ command: "octofriend" }],
-    );
-    expect(result.id).toBe("octofriend");
-  });
-
-  it("should not consult processAncestry under the legacy (env) one-arg form", () => {
-    // No second arg means no opt-in; ancestry isn't consulted.
-    const result = detectAgenticEnvironment({} as any);
+  it("should resolve with no detection when nothing matches", async () => {
+    const result = await detectAgenticEnvironment({ env: {} });
     expect(result.isAgentic).toBe(false);
+    expect(result.id).toBe(null);
   });
 });

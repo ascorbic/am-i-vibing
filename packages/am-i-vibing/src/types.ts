@@ -6,7 +6,7 @@ export type AgenticType = "agent" | "interactive" | "hybrid";
 /**
  * Environment variable definition - either just a name or a name/value tuple
  */
-export type EnvVarDefinition = string | [string, string];
+export type EnvVarDefinition = string | [string, string?];
 
 /**
  * Environment variable group with logical operators
@@ -21,6 +21,24 @@ export interface EnvVarGroup {
   /** NONE of these environment variables should be present (NOT logic) */
   none?: EnvVarDefinition[];
 }
+
+/**
+ * Minimal process info shape describing one entry of a process ancestry chain.
+ * Compatible with the `ProcessInfo` objects returned by `tinyps`.
+ */
+export interface ProcessInfoShape {
+  /** Command line of the process, if known */
+  command?: string;
+
+  /** Executable name of the process, if known */
+  name?: string;
+}
+
+/**
+ * An ordered process ancestry chain, from (or near) the current process up to
+ * the root — the shape returned by `tinyps`'s `getProcessAncestry`.
+ */
+export type ProcessAncestry = ProcessInfoShape[];
 
 /**
  * Configuration for detecting a specific AI coding provider
@@ -72,14 +90,15 @@ export interface DetectOptions {
   env?: Record<string, string | undefined>;
 
   /**
-   * Pre-computed process ancestry (from `process-ancestry` or compatible). When
-   * provided, this is used in place of fetching ancestry at detection time.
-   * Implies `checkProcesses: true` unless explicitly set to `false`.
+   * Pre-computed process ancestry (from `tinyps` or compatible). When provided,
+   * this is used in place of fetching ancestry at detection time, in both the
+   * sync and async detection functions. Implies `checkProcesses: true` unless
+   * explicitly set to `false`.
    */
-  processAncestry?: Array<{ command?: string }>;
+  processAncestry?: ProcessAncestry;
 
   /**
-   * Whether to fall back to process-ancestry checks when no environment-variable
+   * Whether to fall back to process-tree checks when no environment-variable
    * match is found. Defaults to `false` because fetching the process tree is
    * expensive on some platforms (notably Windows).
    *

@@ -18,7 +18,7 @@ npx am-i-vibing
 
 ```ts
 import { detectAgenticEnvironment } from "am-i-vibing";
-const result = detectAgenticEnvironment();
+const result = await detectAgenticEnvironment();
 console.log(`Detected: ${result.name} (${result.type})`);
 ```
 
@@ -85,11 +85,15 @@ import {
   isHybrid,
 } from "am-i-vibing";
 
-// Full detection
-const result = detectAgenticEnvironment();
+// Full detection (async: may load the process tree when opted in)
+const result = await detectAgenticEnvironment();
 console.log(`Detected: ${result.name} (${result.type})`);
 console.log(`ID: ${result.id}`);
 console.log(`Is agentic: ${result.isAgentic}`);
+
+// Sync variant that never fetches process ancestry
+const syncResult = detectAgenticEnvironmentSync();
+console.log(`Is agentic: ${syncResult.isAgentic}`);
 
 // Quick checks
 if (isAgent()) {
@@ -120,18 +124,20 @@ To opt in:
 ```typescript
 import { detectAgenticEnvironment } from "am-i-vibing";
 
-const result = detectAgenticEnvironment({ checkProcesses: true });
+const result = await detectAgenticEnvironment({ checkProcesses: true });
 ```
 
-You can also pre-supply an ancestry (e.g. if you are already collecting one):
+You can also pre-supply an ancestry (e.g. if you are already collecting one).
+Pre-supplied ancestry can be checked by the sync detector too, without loading
+anything:
 
 ```typescript
 import { detectAgenticEnvironment } from "am-i-vibing";
-import { getProcessAncestry } from "process-ancestry";
+import { getProcessAncestry } from "tinyps";
 
-const result = detectAgenticEnvironment({
-  processAncestry: getProcessAncestry(),
-});
+const processAncestry = await getProcessAncestry();
+
+const result = await detectAgenticEnvironment({ processAncestry });
 ```
 
 Supplying `processAncestry` implies `checkProcesses: true` unless you set it to

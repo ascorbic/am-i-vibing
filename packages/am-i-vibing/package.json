@@ -46,6 +46,6 @@
   "author": "Matt Kane",
   "license": "MIT",
   "dependencies": {
-    "process-ancestry": "^0.1.0"
+    "tinyps": "^0.5.1"
   }
 }
