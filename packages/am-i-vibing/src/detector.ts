@@ -4,18 +4,20 @@ import type {
   ProviderConfig,
   EnvVarDefinition,
   EnvVarGroup,
+  ProcessAncestry,
 } from "./types.js";
 import { providers } from "./providers.js";
 
-// Loaded on demand so importing this package never requires Node's module graph.
-function getProcessAncestry(): Array<{ command?: string }> {
+/**
+ * Fetch the current process ancestry via tinyps.
+ *
+ * Loaded on demand so importing this package never requires Node's module
+ * graph: tinyps is only loaded when process checks are actually requested.
+ */
+async function fetchProcessAncestry(): Promise<ProcessAncestry> {
   try {
-    const nodeModule = globalThis.process?.getBuiltinModule?.("module");
-    if (!nodeModule) {
-      return [];
-    }
-    const requireFromHere = nodeModule.createRequire(import.meta.url);
-    return requireFromHere("process-ancestry").getProcessAncestry();
+    const { getProcessAncestry } = await import("tinyps");
+    return await getProcessAncestry();
   } catch {
     return [];
   }
@@ -42,10 +44,13 @@ function checkEnvVar(
  */
 function checkProcess(
   processName: string,
-  processAncestry: Array<{ command?: string }>,
+  processAncestry: ProcessAncestry,
 ): boolean {
   for (const ancestorProcess of processAncestry) {
-    if (ancestorProcess.command?.includes(processName)) {
+    if (
+      ancestorProcess.command?.includes(processName) ||
+      ancestorProcess.name?.includes(processName)
+    ) {
       return true;
     }
   }
@@ -108,75 +113,23 @@ function createDetectedResult(provider: ProviderConfig): DetectionResult {
 }
 
 /**
- * Normalize the various supported argument shapes into a DetectOptions object.
- *
- * Supported shapes:
- *   - detectAgenticEnvironment()
- *   - detectAgenticEnvironment(options)
- *   - detectAgenticEnvironment(env)                       // legacy
- *   - detectAgenticEnvironment(env, processAncestry)      // legacy
+ * Result returned when no provider matched
  */
-function normalizeOptions(
-  envOrOptions?: Record<string, string | undefined> | DetectOptions,
-  legacyAncestry?: Array<{ command?: string }>,
-): Required<Pick<DetectOptions, "env" | "checkProcesses">> & {
-  processAncestry?: Array<{ command?: string }>;
-} {
-  // Distinguish a DetectOptions object from a raw env record. DetectOptions
-  // has at least one of the known keys; an env record is a flat string map.
-  const looksLikeOptions =
-    envOrOptions != null &&
-    typeof envOrOptions === "object" &&
-    ("env" in envOrOptions ||
-      "processAncestry" in envOrOptions ||
-      "checkProcesses" in envOrOptions);
-
-  if (looksLikeOptions) {
-    const opts = envOrOptions as DetectOptions;
-    return {
-      env: opts.env ?? process.env,
-      processAncestry: opts.processAncestry,
-      // If the caller pre-supplied an ancestry, default checkProcesses to true
-      // unless they explicitly opted out.
-      checkProcesses:
-        opts.checkProcesses ?? opts.processAncestry !== undefined,
-    };
-  }
-
+function noDetectionResult(): DetectionResult {
   return {
-    env:
-      (envOrOptions as Record<string, string | undefined> | undefined) ??
-      process.env,
-    processAncestry: legacyAncestry,
-    // Legacy callers that explicitly passed an ancestry are presumed to want
-    // process checks; otherwise default off.
-    checkProcesses: legacyAncestry !== undefined,
+    isAgentic: false,
+    id: null,
+    name: null,
+    type: null,
   };
 }
 
 /**
- * Detect agentic coding environment
+ * Common fast-path detection logic (env vars and custom detectors)
  */
-export function detectAgenticEnvironment(
-  options?: DetectOptions,
-): DetectionResult;
-/**
- * @deprecated Pass an options object instead. This signature is retained for
- * backwards compatibility and will be removed in a future major release.
- */
-export function detectAgenticEnvironment(
+function runFastPathDetection(
   env: Record<string, string | undefined>,
-  processAncestry?: Array<{ command?: string }>,
-): DetectionResult;
-export function detectAgenticEnvironment(
-  envOrOptions?: Record<string, string | undefined> | DetectOptions,
-  legacyAncestry?: Array<{ command?: string }>,
-): DetectionResult {
-  const { env, processAncestry, checkProcesses } = normalizeOptions(
-    envOrOptions,
-    legacyAncestry,
-  );
-
+): DetectionResult | null {
   // Fast path: check all environment variables first
   for (const provider of providers) {
     if (provider.envVars?.some((group) => checkEnvVars(group, env))) {
@@ -191,39 +144,81 @@ export function detectAgenticEnvironment(
     }
   }
 
-  // Slow path: process ancestry checks. Opt-in only because reading the process
-  // tree spawns a subprocess (notably slow on Windows).
-  if (checkProcesses) {
-    let cachedAncestry = processAncestry;
-    const getAncestry = () => {
-      if (cachedAncestry === undefined) {
-        try {
-          cachedAncestry = getProcessAncestry();
-        } catch {
-          cachedAncestry = [];
-        }
-      }
-      return cachedAncestry;
-    };
+  return null;
+}
 
-    for (const provider of providers) {
-      if (
-        provider.processChecks?.some((processName) =>
-          checkProcess(processName, getAncestry()),
-        )
-      ) {
-        return createDetectedResult(provider);
-      }
+/**
+ * Run process ancestry checks against all providers
+ */
+function runProcessChecks(ancestry: ProcessAncestry): DetectionResult | null {
+  for (const provider of providers) {
+    if (
+      provider.processChecks?.some((processName) =>
+        checkProcess(processName, ancestry),
+      )
+    ) {
+      return createDetectedResult(provider);
     }
   }
 
-  // No provider detected
-  return {
-    isAgentic: false,
-    id: null,
-    name: null,
-    type: null,
-  };
+  return null;
+}
+
+/**
+ * Detect agentic coding environment synchronously (env vars, custom detectors,
+ * and any pre-supplied process ancestry)
+ */
+export function detectAgenticEnvironmentSync(
+  options?: DetectOptions,
+): DetectionResult {
+  const env = options?.env ?? process.env;
+  const processAncestry = options?.processAncestry;
+  // Supplying an ancestry implies opting in to process checks unless the
+  // caller explicitly opted out.
+  const checkProcesses =
+    options?.checkProcesses ?? processAncestry !== undefined;
+
+  const fastResult = runFastPathDetection(env);
+  if (fastResult) {
+    return fastResult;
+  }
+
+  if (checkProcesses && processAncestry) {
+    return runProcessChecks(processAncestry) ?? noDetectionResult();
+  }
+
+  return noDetectionResult();
+}
+
+/**
+ * Detect agentic coding environment asynchronously (supports fetching process
+ * ancestry via tinyps when pre-supplied ancestry is absent)
+ */
+export async function detectAgenticEnvironment(
+  options?: DetectOptions,
+): Promise<DetectionResult> {
+  const processAncestry = options?.processAncestry;
+
+  // A pre-supplied ancestry can be checked without any awaits, so the sync
+  // path covers everything in that case.
+  if (processAncestry !== undefined) {
+    return detectAgenticEnvironmentSync(options);
+  }
+
+  const env = options?.env ?? process.env;
+  const fastResult = runFastPathDetection(env);
+  if (fastResult) {
+    return fastResult;
+  }
+
+  // Slow path: fetch the process tree (only when opted in, because it spawns
+  // a subprocess and is notably slow on Windows).
+  if (options?.checkProcesses) {
+    const ancestry = await fetchProcessAncestry();
+    return runProcessChecks(ancestry) ?? noDetectionResult();
+  }
+
+  return noDetectionResult();
 }
 
 /**
@@ -232,89 +227,31 @@ export function detectAgenticEnvironment(
 export function isProvider(
   providerName: string,
   options?: DetectOptions,
-): boolean;
-/**
- * @deprecated Pass an options object instead.
- */
-export function isProvider(
-  providerName: string,
-  env: Record<string, string | undefined>,
-  processAncestry?: Array<{ command?: string }>,
-): boolean;
-export function isProvider(
-  providerName: string,
-  envOrOptions?: Record<string, string | undefined> | DetectOptions,
-  legacyAncestry?: Array<{ command?: string }>,
 ): boolean {
-  const result = detectAgenticEnvironment(
-    envOrOptions as DetectOptions,
-    legacyAncestry as Array<{ command?: string }> | undefined,
-  );
+  const result = detectAgenticEnvironmentSync(options);
   return result.name === providerName;
 }
 
 /**
  * Check if currently running in any agent environment
  */
-export function isAgent(options?: DetectOptions): boolean;
-/**
- * @deprecated Pass an options object instead.
- */
-export function isAgent(
-  env: Record<string, string | undefined>,
-  processAncestry?: Array<{ command?: string }>,
-): boolean;
-export function isAgent(
-  envOrOptions?: Record<string, string | undefined> | DetectOptions,
-  legacyAncestry?: Array<{ command?: string }>,
-): boolean {
-  const result = detectAgenticEnvironment(
-    envOrOptions as DetectOptions,
-    legacyAncestry as Array<{ command?: string }> | undefined,
-  );
+export function isAgent(options?: DetectOptions): boolean {
+  const result = detectAgenticEnvironmentSync(options);
   return result.type === "agent" || result.type === "hybrid";
 }
 
 /**
  * Check if currently running in any interactive AI environment
  */
-export function isInteractive(options?: DetectOptions): boolean;
-/**
- * @deprecated Pass an options object instead.
- */
-export function isInteractive(
-  env: Record<string, string | undefined>,
-  processAncestry?: Array<{ command?: string }>,
-): boolean;
-export function isInteractive(
-  envOrOptions?: Record<string, string | undefined> | DetectOptions,
-  legacyAncestry?: Array<{ command?: string }>,
-): boolean {
-  const result = detectAgenticEnvironment(
-    envOrOptions as DetectOptions,
-    legacyAncestry as Array<{ command?: string }> | undefined,
-  );
+export function isInteractive(options?: DetectOptions): boolean {
+  const result = detectAgenticEnvironmentSync(options);
   return result.type === "interactive" || result.type === "hybrid";
 }
 
 /**
  * Check if currently running in any hybrid AI environment
  */
-export function isHybrid(options?: DetectOptions): boolean;
-/**
- * @deprecated Pass an options object instead.
- */
-export function isHybrid(
-  env: Record<string, string | undefined>,
-  processAncestry?: Array<{ command?: string }>,
-): boolean;
-export function isHybrid(
-  envOrOptions?: Record<string, string | undefined> | DetectOptions,
-  legacyAncestry?: Array<{ command?: string }>,
-): boolean {
-  const result = detectAgenticEnvironment(
-    envOrOptions as DetectOptions,
-    legacyAncestry as Array<{ command?: string }> | undefined,
-  );
+export function isHybrid(options?: DetectOptions): boolean {
+  const result = detectAgenticEnvironmentSync(options);
   return result.type === "hybrid";
 }

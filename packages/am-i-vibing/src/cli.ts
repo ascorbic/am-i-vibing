@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 
 import { parseArgs } from "node:util";
-import { getProcessAncestry } from "process-ancestry";
-import {
-  detectAgenticEnvironment,
-  isAgent,
-  isInteractive,
-  isHybrid,
-} from "./detector.js";
+import type { DetectionResult } from "./types.js";
+import { getProcessAncestry } from "tinyps";
+import { detectAgenticEnvironment } from "./detector.js";
 
 interface CliOptions {
   format?: "json" | "text";
@@ -115,30 +111,33 @@ EXIT CODES:
 `);
 }
 
-function checkEnvironmentType(
+async function checkEnvironmentType(
   checkType: string,
   options: { checkProcesses?: boolean },
-): boolean {
+): Promise<boolean> {
+  const result = await detectAgenticEnvironment({
+    checkProcesses: options.checkProcesses,
+  });
   switch (checkType) {
     case "agent":
-      return isAgent({ checkProcesses: options.checkProcesses });
+      return result.type === "agent" || result.type === "hybrid";
     case "interactive":
-      return isInteractive({ checkProcesses: options.checkProcesses });
+      return result.type === "interactive" || result.type === "hybrid";
     case "hybrid":
-      return isHybrid({ checkProcesses: options.checkProcesses });
+      return result.type === "hybrid";
     default:
       return false;
   }
 }
 
-function formatOutput(
-  result: ReturnType<typeof detectAgenticEnvironment>,
+async function formatOutput(
+  result: DetectionResult,
   options: CliOptions,
-): string {
+): Promise<string> {
   if (options.debug) {
     let processAncestry: any[] = [];
     try {
-      processAncestry = getProcessAncestry();
+      processAncestry = await getProcessAncestry();
     } catch (error) {
       processAncestry = [{ error: "Failed to get process ancestry" }];
     }
@@ -157,13 +156,13 @@ function formatOutput(
 
   if (options.quiet) {
     if (options.check) {
-      return checkEnvironmentType(options.check, options) ? "true" : "false";
+      return (await checkEnvironmentType(options.check, options)) ? "true" : "false";
     }
     return result.isAgentic ? `${result.name}` : "none";
   }
 
   if (options.check) {
-    const matches = checkEnvironmentType(options.check, options);
+    const matches = await checkEnvironmentType(options.check, options);
     return matches
       ? `✓ Running in ${options.check} environment: ${result.name}`
       : `✗ Not running in ${options.check} environment`;
@@ -176,7 +175,7 @@ function formatOutput(
   return `✓ Detected: [${result.id}] ${result.name} (${result.type})`;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const options = parseCliArgs();
 
   if (options.help) {
@@ -186,16 +185,18 @@ function main(): void {
 
   // --debug always reveals the full picture, including process detection
   const checkProcesses = options.checkProcesses || options.debug;
-  const result = detectAgenticEnvironment({ checkProcesses });
+  const result = await detectAgenticEnvironment({ checkProcesses });
   let exitCode = 1;
 
   if (options.check) {
-    exitCode = checkEnvironmentType(options.check, { checkProcesses }) ? 0 : 1;
+    exitCode = (await checkEnvironmentType(options.check, { checkProcesses }))
+      ? 0
+      : 1;
   } else {
     exitCode = result.isAgentic ? 0 : 1;
   }
 
-  const output = formatOutput(result, options);
+  const output = await formatOutput(result, options);
   console.log(output);
 
   process.exit(exitCode);
