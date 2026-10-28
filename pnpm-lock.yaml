@@ -17,10 +17,10 @@ importers:
         version: 0.7.0
       '@changesets/cli':
         specifier: 2.31.0
-        version: 2.31.0(@types/node@24.12.4)
+        version: 2.31.0(@types/node@26.6.5)
       '@types/node':
-        specifier: 24.12.4
-        version: 24.12.4
+        specifier: 26.6.5
+        version: 26.6.5
       prettier:
         specifier: 3.8.3
         version: 3.8.3
@@ -32,7 +32,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 5.0.1
-        version: 5.0.1(@types/node@24.12.4)(vite@7.0.5(@types/node@24.12.4)(jiti@2.5.1)(tsx@4.22.3))
+        version: 5.0.1(@types/node@26.6.5)(vite@7.0.5(@types/node@26.6.5)(jiti@2.5.1)(tsx@4.22.3))
 
   packages/am-i-vibing:
     dependencies:
@@ -44,8 +44,8 @@ importers:
         specifier: 0.18.2
         version: 0.18.2
       '@types/node':
-        specifier: 24.12.4
-        version: 24.12.4
+        specifier: 26.6.5
+        version: 26.6.5
       publint:
         specifier: 0.3.21
         version: 0.3.21
@@ -57,7 +57,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 5.0.1
-        version: 5.0.1(@types/node@24.12.4)(vite@7.0.5(@types/node@24.12.4)(jiti@2.5.1)(tsx@4.22.3))
+        version: 5.0.1(@types/node@26.6.5)(vite@7.0.5(@types/node@26.6.5)(jiti@2.5.1)(tsx@4.22.3))
 
 packages:
 
@@ -1053,8 +1053,8 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
-  '@types/node@24.12.4':
-    resolution: {integrity: sha512-GUUEShf+PBCGW2KaXwcIt3Yk+e3pkKwWKb9GSyM9WQVE+ep2jzmHdGsHzu4wgcZy5fN9FBdVzjpBQsYlpfpgLA==}
+  '@types/node@26.6.5':
+    resolution: {integrity: sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg==}
 
   '@vitest/mocker@5.0.1':
     resolution: {integrity: sha512-6K1DoBNAPGvuOcSsGA4D6x+5zEEff/KmOOP3uetT2TrGpVfI+HRHRnJJfKi5ib/g1vx8IYHQD8s0pbJz8WQI7Q==}
@@ -1976,8 +1976,8 @@ packages:
   unconfig-core@7.5.0:
     resolution: {integrity: sha512-Su3FauozOGP44ZmKdHy2oE6LPjk51M/TRRjHv2HNCWiDvfvCoxC2lno6jevMA91MYAdCdwP05QnWdWpSbncX/w==}
 
-  undici-types@7.16.0:
-    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+  undici-types@8.9.0:
+    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
   unicode-emoji-modifier-base@1.0.0:
     resolution: {integrity: sha512-yLSH4py7oFH3oG/9K+XWrz1pSi3dfUrWEnInbxMfArOfc1+33BlGPQtLsOYwvdMy11AwUBetYuaRxSPqgkq+8g==}
@@ -2210,7 +2210,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@changesets/cli@2.31.0(@types/node@24.12.4)':
+  '@changesets/cli@2.31.0(@types/node@26.6.5)':
     dependencies:
       '@changesets/apply-release-plan': 7.1.1
       '@changesets/assemble-release-plan': 6.0.10
@@ -2226,7 +2226,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.3(@types/node@24.12.4)
+      '@inquirer/external-editor': 1.0.3(@types/node@26.6.5)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       enquirer: 2.4.1
@@ -2584,12 +2584,12 @@ snapshots:
   '@esbuild/win32-x64@0.28.0':
     optional: true
 
-  '@inquirer/external-editor@1.0.3(@types/node@24.12.4)':
+  '@inquirer/external-editor@1.0.3(@types/node@26.6.5)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 24.12.4
+      '@types/node': 26.6.5
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -2856,18 +2856,18 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
-  '@types/node@24.12.4':
+  '@types/node@26.6.5':
     dependencies:
-      undici-types: 7.16.0
+      undici-types: 8.9.0
 
-  '@vitest/mocker@5.0.1(vite@7.0.5(@types/node@24.12.4)(jiti@2.5.1)(tsx@4.22.3))':
+  '@vitest/mocker@5.0.1(vite@7.0.5(@types/node@26.6.5)(jiti@2.5.1)(tsx@4.22.3))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.1
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
-      vite: 7.0.5(@types/node@24.12.4)(jiti@2.5.1)(tsx@4.22.3)
+      vite: 7.0.5(@types/node@26.6.5)(jiti@2.5.1)(tsx@4.22.3)
 
   '@vitest/spy@5.0.1': {}
 
@@ -3765,7 +3765,7 @@ snapshots:
       '@quansync/fs': 1.0.0
       quansync: 1.0.0
 
-  undici-types@7.16.0: {}
+  undici-types@8.9.0: {}
 
   unicode-emoji-modifier-base@1.0.0: {}
 
@@ -3778,24 +3778,24 @@ snapshots:
 
   validate-npm-package-name@5.0.1: {}
 
-  vite@7.0.5(@types/node@24.12.4)(jiti@2.5.1)(tsx@4.22.3):
+  vite@7.0.5(@types/node@26.6.5)(jiti@2.5.1)(tsx@4.22.3):
     dependencies:
       esbuild: 0.25.7
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
       postcss: 8.5.6
       rollup: 4.45.1
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 24.12.4
+      '@types/node': 26.6.5
       fsevents: 2.3.3
       jiti: 2.5.1
       tsx: 4.22.3
 
-  vitest@5.0.1(@types/node@24.12.4)(vite@7.0.5(@types/node@24.12.4)(jiti@2.5.1)(tsx@4.22.3)):
+  vitest@5.0.1(@types/node@26.6.5)(vite@7.0.5(@types/node@26.6.5)(jiti@2.5.1)(tsx@4.22.3)):
     dependencies:
       '@types/chai': 5.2.2
-      '@vitest/mocker': 5.0.1(vite@7.0.5(@types/node@24.12.4)(jiti@2.5.1)(tsx@4.22.3))
+      '@vitest/mocker': 5.0.1(vite@7.0.5(@types/node@26.6.5)(jiti@2.5.1)(tsx@4.22.3))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -3806,10 +3806,10 @@ snapshots:
       tinybench: 6.1.4
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
-      vite: 7.0.5(@types/node@24.12.4)(jiti@2.5.1)(tsx@4.22.3)
+      vite: 7.0.5(@types/node@26.6.5)(jiti@2.5.1)(tsx@4.22.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 24.12.4
+      '@types/node': 26.6.5
     transitivePeerDependencies:
       - msw
 
