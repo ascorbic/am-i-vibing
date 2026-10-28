@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.2",
-    "@types/node": "24.12.4",
+    "@types/node": "26.6.5",
     "publint": "0.3.21",
     "tsdown": "0.22.0",
     "typescript": "6.0.3",
