@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "doubao-work",
+    name: "Doubao Work",
+    type: "agent",
+    envVars: ["DOUBAO_OFFICE_AGENT_NAME"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
