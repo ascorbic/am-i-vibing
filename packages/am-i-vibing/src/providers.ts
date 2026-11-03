@@ -275,6 +275,12 @@ export const providers: ProviderConfig[] = [
     // See: https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/cli.ts
     envVars: [["PI_CODING_AGENT", "true"]],
   },
+  {
+    id: "deepseek-harness",
+    name: "DeepSeek Harness",
+    type: "agent",
+    envVars: ["DSH_SHELL"],
+  },
 ];
 
 /**
