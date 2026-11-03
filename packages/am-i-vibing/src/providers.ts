@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "github-copilot-cli",
+    name: "GitHub Copilot CLI",
+    type: "agent",
+    envVars: ["COPILOT_CLI", "COPILOT_AGENT_SESSION_ID"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
