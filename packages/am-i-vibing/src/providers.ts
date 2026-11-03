@@ -5,6 +5,15 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "manus",
+    name: "Manus",
+    type: "agent",
+    envVars: [
+      "MANUS_ADDON_RUNTIME_SPEC_PATH",
+      "MANUS_ADDON_RUNTIME_SPECS_REVISION",
+    ],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
