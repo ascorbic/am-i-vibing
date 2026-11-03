@@ -24,6 +24,8 @@ console.log(`Detected: ${result.name} (${result.type})`);
 
 ## Supported AI Tools
 
+- **Kimi Code**
+
 - **Aider**
 - **Bolt**
 - **Claude Code**
