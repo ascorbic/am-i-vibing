@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "roo-code",
+    name: "Roo Code",
+    type: "agent",
+    envVars: ["ROO_ACTIVE", "ROO_CLI_RUNTIME"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
