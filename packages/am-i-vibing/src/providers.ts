@@ -4,6 +4,7 @@ import type { ProviderConfig } from "./types.js";
  * Provider configurations for major AI coding tools
  */
 export const providers: ProviderConfig[] = [
+  { id: "goose", name: "Goose", type: "agent", envVars: ["GOOSE_TERMINAL"] },
   {
     id: "opencode",
     name: "OpenCode",
