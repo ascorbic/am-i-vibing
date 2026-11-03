@@ -4,6 +4,7 @@ import type { ProviderConfig } from "./types.js";
  * Provider configurations for major AI coding tools
  */
 export const providers: ProviderConfig[] = [
+  { id: "junie", name: "Junie", type: "agent", envVars: ["JUNIE_SHIM_PATH"] },
   {
     id: "opencode",
     name: "OpenCode",
