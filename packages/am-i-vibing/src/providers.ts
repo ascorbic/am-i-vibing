@@ -273,7 +273,7 @@ export const providers: ProviderConfig[] = [
     // DEVIN_SESSION_ID/DEVIN_WRAPPER_ACTIVE only exist in the opt-in `devin shell`
     // integration where the user runs commands themselves). Process ancestry is
     // the only available signal for that Terminal path. Cloud command tools expose
-    // separate execution markers; see docs/agent-signals/devin.md.
+    // separate execution markers observed in the agent command environment.
     processChecks: ["devin"],
     envVars: ["DEVIN_DIR", "DEVIN_DISABLE_HISTEXPAND"],
   },
