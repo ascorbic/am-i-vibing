@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "cue",
+    name: "Cue",
+    type: "agent",
+    envVars: ["MANUS_LONG_DESKTOP_WORKER", "MANUS_OPERATOR_PLATFORM"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
