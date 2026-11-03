@@ -275,6 +275,16 @@ export const providers: ProviderConfig[] = [
     // See: https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/cli.ts
     envVars: [["PI_CODING_AGENT", "true"]],
   },
+  {
+    id: "instinct",
+    name: "Instinct",
+    type: "agent",
+    envVars: [
+      "INSTINCT_OUTER_TOOL_USE_ID",
+      "INSTINCT_OUTER_TOOL_USE_STARTED_AT",
+      "INSTINCT_OUTER_TOOL_USE_TIMEOUT_SECONDS",
+    ],
+  },
 ];
 
 /**
