@@ -5,6 +5,15 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "cowork",
+    name: "Claude Cowork",
+    type: "agent",
+    envVars: [
+      { all: ["CLAUDE_CODE_IS_COWORK", "CLAUDECODE"] },
+      { all: ["CLAUDE_CODE_IS_COWORK", "CLAUDE_CODE"] },
+    ],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
