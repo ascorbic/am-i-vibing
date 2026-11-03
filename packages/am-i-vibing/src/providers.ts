@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "hermes-agent",
+    name: "Hermes Agent",
+    type: "agent",
+    envVars: ["HERMES_SESSION_ID", "HERMES_AGENT"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
