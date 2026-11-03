@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "cline",
+    name: "Cline",
+    type: "agent",
+    envVars: ["CLINE_ACTIVE", "CLINE_WRAPPER_PATH"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
