@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "muse",
+    name: "Muse",
+    type: "agent",
+    envVars: ["JARVIS_IS_ASSIGNED", "JARVIS_TOOL_CALL_ID"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
