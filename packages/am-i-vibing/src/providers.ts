@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "grok-build",
+    name: "Grok Build",
+    type: "agent",
+    envVars: [["GROK_AGENT", "1"], "GROK_PLUGIN_ROOT", "GROK_PLUGIN_DATA"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
