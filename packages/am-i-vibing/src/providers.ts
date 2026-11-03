@@ -246,17 +246,6 @@ export const providers: ProviderConfig[] = [
     processChecks: ["octofriend"],
   },
   {
-    id: "devin",
-    name: "Devin",
-    type: "agent",
-    // Devin for Terminal does not inject any DEVIN_* env var into shell tool
-    // executions (DEVIN_PROJECT_DIR is only set inside hook commands, and
-    // DEVIN_SESSION_ID/DEVIN_WRAPPER_ACTIVE only exist in the opt-in `devin shell`
-    // integration where the user runs commands themselves). Process ancestry is
-    // the only available signal, so detection is opt-in via processAncestry.
-    processChecks: ["devin"],
-  },
-  {
     id: "droid",
     name: "Factory Droid",
     type: "agent",
@@ -274,6 +263,19 @@ export const providers: ProviderConfig[] = [
     // ...process.env), so the variable is inherited by spawned shells.
     // See: https://github.com/earendil-works/pi/blob/main/packages/coding-agent/src/cli.ts
     envVars: [["PI_CODING_AGENT", "true"]],
+  },
+  {
+    id: "devin",
+    name: "Devin",
+    type: "agent",
+    // Devin for Terminal does not inject any DEVIN_* env var into shell tool
+    // executions (DEVIN_PROJECT_DIR is only set inside hook commands, and
+    // DEVIN_SESSION_ID/DEVIN_WRAPPER_ACTIVE only exist in the opt-in `devin shell`
+    // integration where the user runs commands themselves). Process ancestry is
+    // the only available signal for that Terminal path. Cloud command tools expose
+    // separate execution markers observed in the agent command environment.
+    processChecks: ["devin"],
+    envVars: ["DEVIN_DIR", "DEVIN_DISABLE_HISTEXPAND"],
   },
 ];
 
