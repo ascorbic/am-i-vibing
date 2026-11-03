@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "kimi",
+    name: "Kimi Code",
+    type: "agent",
+    envVars: ["KIMI_PLUGIN_ROOT"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
