@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "kilo-code",
+    name: "Kilo Code",
+    type: "agent",
+    envVars: ["KILOCODE_FEATURE"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
