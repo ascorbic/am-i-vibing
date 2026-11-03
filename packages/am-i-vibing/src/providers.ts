@@ -5,6 +5,12 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "qwenwork",
+    name: "QwenWork",
+    type: "agent",
+    envVars: ["QODER_WORK_INTEGRATION_PRODUCT"],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
