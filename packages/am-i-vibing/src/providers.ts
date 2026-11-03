@@ -5,6 +5,15 @@ import type { ProviderConfig } from "./types.js";
  */
 export const providers: ProviderConfig[] = [
   {
+    id: "grok-bot",
+    name: "Grok Bot",
+    type: "agent",
+    envVars: [
+      "SAND_AGENT",
+      { all: ["CURSOR_AGENT", "SAND_MANIFEST_V2", "SAND_SUPERVISOR_ENABLED"] },
+    ],
+  },
+  {
     id: "opencode",
     name: "OpenCode",
     type: "agent",
