@@ -24,6 +24,6 @@
   },
   "packageManager": "pnpm@10.33.4",
   "dependencies": {
-    "tsup": "^8.5.1"
+    "tsup": "^9.0.0"
   }
 }
